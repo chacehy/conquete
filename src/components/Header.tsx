@@ -4,31 +4,18 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Compass, Sliders } from 'lucide-react';
 
-interface HeaderProps {
-  transparent?: boolean;
-}
-
-export default function Header({ transparent = false }: HeaderProps) {
+export default function Header() {
   const pathname = usePathname();
 
   const isActive = (path: string) => {
-    if (pathname === path) {
-      return transparent ? 'text-blue-400 font-extrabold' : 'text-blue-600 font-extrabold';
-    }
-    return transparent ? 'text-slate-200 hover:text-white' : 'text-slate-700 hover:text-blue-600';
+    return pathname === path ? 'text-blue-600 font-extrabold' : 'text-slate-700 hover:text-blue-600';
   };
 
   return (
-    <header className={
-      transparent 
-        ? "absolute top-0 left-0 z-40 w-full bg-transparent border-b border-white/10 transition-all duration-300"
-        : "sticky top-0 z-40 w-full bg-white/85 backdrop-blur-md border-b border-slate-200/80 transition-all duration-300"
-    }>
+    <header className="sticky top-0 z-40 w-full bg-white/85 backdrop-blur-md border-b border-slate-200/80 transition-all duration-300">
       <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-        <Link href="/" className={`font-heading text-2xl font-black tracking-tight flex items-center gap-2 transition-colors ${
-          transparent ? 'text-blue-400' : 'text-blue-600'
-        }`}>
-          <Compass className="w-7 h-7" /> Conquête<span className={transparent ? 'text-white' : 'text-slate-900'}>.</span>
+        <Link href="/" className="font-heading text-2xl font-black text-blue-600 tracking-tight flex items-center gap-2">
+          <Compass className="w-7 h-7" /> Conquête<span className="text-slate-900">.</span>
         </Link>
 
         <nav className="hidden md:flex items-center gap-8 font-semibold text-sm">
@@ -46,13 +33,9 @@ export default function Header({ transparent = false }: HeaderProps) {
         <div className="flex items-center gap-4">
           <Link 
             href="/admin" 
-            className={`px-4 py-2 border rounded-lg text-sm font-semibold flex items-center gap-2 transition-all ${
-              transparent 
-                ? 'border-white/20 text-white hover:border-white/50 hover:bg-white/5' 
-                : 'border-slate-200 hover:border-blue-500 text-slate-800 hover:bg-slate-50'
-            }`}
+            className="px-4 py-2 border border-slate-200 rounded-lg hover:border-blue-500 text-sm font-semibold text-slate-800 flex items-center gap-2 hover:bg-slate-50 transition-all"
           >
-            <Sliders className="w-4 h-4 text-blue-400" /> Espace Agent
+            <Sliders className="w-4 h-4 text-blue-600" /> Espace Agent
           </Link>
           <Link 
             href="/sur-mesure" 

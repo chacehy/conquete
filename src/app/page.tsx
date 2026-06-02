@@ -213,56 +213,43 @@ export default function LandingPage() {
   const omraTeaser = packages.filter(p => p.type === 'omra').slice(0, 3);
 
   return (
-    <div className="flex-1 flex flex-col relative bg-slate-50">
-      <Header transparent />
+    <div className="flex-1 flex flex-col relative">
+      <Header />
 
       {/* Hero Section */}
-      <section className="relative w-full h-[85vh] lg:h-[90vh] min-h-[600px] flex items-center overflow-hidden bg-slate-950">
-        {/* Background Image & Overlay */}
-        <div className="absolute inset-0 z-0">
-          <Image 
-            src="/conquete_hero.png" 
-            alt="Conquête Voyage Prestige" 
-            fill 
-            priority
-            className="object-cover opacity-50 select-none pointer-events-none"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/75 to-transparent z-10" />
-          <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-slate-950 to-transparent z-10" />
-        </div>
-
-        {/* Hero Content */}
-        <div className="max-w-7xl mx-auto px-6 w-full z-20 grid lg:grid-cols-12 gap-12 items-center pt-20">
-          <div className="lg:col-span-8 flex flex-col gap-6 text-left">
-            <span className="inline-flex items-center gap-2 bg-white/10 border border-white/15 backdrop-blur-md text-blue-300 font-bold text-xs px-3.5 py-1.5 rounded-full w-fit">
-              <Sparkles className="w-3.5 h-3.5 text-blue-400" /> AGENT DE VOYAGE DE PRESTIGE
+      <section className="relative overflow-hidden bg-radial from-blue-50/80 via-white to-white py-20 lg:py-28">
+        <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-12 gap-12 items-center">
+          <div className="lg:col-span-7 flex flex-col gap-6 text-left">
+            <span className="inline-flex items-center gap-2 bg-blue-50 border border-blue-100 text-blue-600 font-bold text-xs px-3.5 py-1.5 rounded-full w-fit">
+              <Sparkles className="w-3.5 h-3.5" /> AGENT DE VOYAGE DE PRESTIGE
             </span>
-            <h1 className="font-heading text-4xl sm:text-5xl lg:text-7xl font-black text-white leading-none tracking-tight">
-              Explorez le monde,<br />
-              conquérez vos <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-300">rêves.</span>
+            <h1 className="font-heading text-4xl sm:text-5xl lg:text-6xl font-black text-slate-950 leading-tight">
+              Explorez le monde,<br />conquérez vos <span className="text-blue-600 relative">rêves.</span>
             </h1>
-            <p className="text-base sm:text-lg lg:text-xl text-slate-300/90 leading-relaxed max-w-xl">
+            <p className="text-lg text-slate-600 leading-relaxed max-w-xl">
               Des expéditions internationales mémorables aux pèlerinages sacrés de l'Omra, nous façonnons des séjours exclusifs et sur-mesure d'un raffinement incomparable.
             </p>
             <div className="flex flex-wrap gap-4 mt-2">
-              <Link href="/international" className="px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white font-extrabold rounded-xl shadow-lg shadow-blue-600/30 transition-all transform hover:-translate-y-0.5">
+              <Link href="/international" className="px-6 py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-lg shadow-blue-600/25 transition-all transform hover:-translate-y-0.5">
                 Explorer les Séjours
               </Link>
-              <Link href="/sur-mesure" className="px-8 py-4 border border-white/20 bg-white/5 backdrop-blur-md hover:bg-white/15 hover:border-white/40 text-white font-bold rounded-xl transition-all transform hover:-translate-y-0.5">
+              <Link href="/sur-mesure" className="px-6 py-3.5 border border-slate-200 bg-white hover:bg-blue-50/50 hover:border-blue-300 text-blue-600 font-bold rounded-lg transition-all transform hover:-translate-y-0.5">
                 Créer un Itinéraire
               </Link>
             </div>
           </div>
-          
-          {/* Glassmorphic Signature Destinations Card */}
-          <div className="lg:col-span-4 flex lg:justify-end justify-start">
-            <div className="glass-card backdrop-blur-xl bg-slate-900/60 border border-white/15 p-6 rounded-2xl shadow-2xl flex items-center gap-4 hover:border-white/30 transition-all transform hover:scale-102 duration-300">
-              <div className="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center border border-blue-500/20">
-                <Compass className="w-6 h-6 text-blue-400 animate-spin-slow" />
-              </div>
-              <div>
-                <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">Destinations Signature</div>
-                <div className="text-sm font-extrabold text-white mt-0.5">Rome — Tokyo — La Mecque</div>
+          <div className="lg:col-span-5 relative">
+            <div className="relative h-[400px] sm:h-[480px] rounded-3xl overflow-hidden shadow-2xl border border-slate-200/50">
+              <Image 
+                src="/conquete_hero.png" 
+                alt="Conquête Travel" 
+                fill 
+                priority
+                sizes="(max-width: 1024px) 100vw, 500px"
+                className="object-cover hover:scale-105 transition-transform duration-700"
+              />
+              <div className="absolute top-6 left-6 glass-card px-4 py-2.5 rounded-full shadow-lg flex items-center gap-2 border border-white/50 text-blue-600 font-bold text-sm">
+                <Compass className="w-4 h-4 animate-spin-slow" /> Rome - Tokyo - La Mecque
               </div>
             </div>
           </div>
@@ -270,8 +257,8 @@ export default function LandingPage() {
       </section>
 
       {/* Booking Search Widget */}
-      <section className="max-w-7xl mx-auto px-6 w-full -mt-24 lg:-mt-28 z-30 relative">
-        <div className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-slate-200/60 overflow-hidden">
+      <section className="max-w-7xl mx-auto px-6 w-full -mt-16 z-20 relative">
+        <div className="bg-white rounded-2xl shadow-xl border border-slate-200/60 overflow-hidden">
           <div className="grid grid-cols-2 md:grid-cols-4 bg-slate-50 border-b border-slate-200/80">
             <button 
               onClick={() => setActiveSearchTab('billetterie')}
