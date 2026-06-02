@@ -46,7 +46,7 @@ export default function Header({ transparent = false }: HeaderProps) {
         <div className="flex items-center gap-4">
           <Link 
             href="/admin" 
-            className={`px-4 py-2 border rounded-lg text-sm font-semibold flex items-center gap-2 transition-all ${
+            className={`hidden md:flex px-4 py-2 border rounded-lg text-sm font-semibold items-center gap-2 transition-all ${
               transparent 
                 ? 'border-white/20 text-white hover:border-white/50 hover:bg-white/5' 
                 : 'border-slate-200 hover:border-blue-500 text-slate-800 hover:bg-slate-50'

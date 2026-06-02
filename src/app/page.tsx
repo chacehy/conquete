@@ -232,19 +232,19 @@ export default function LandingPage() {
         </div>
 
         {/* Hero Content */}
-        <div className="max-w-7xl mx-auto px-6 w-full z-20 grid lg:grid-cols-12 gap-12 items-center pt-20">
-          <div className="lg:col-span-8 flex flex-col gap-6 text-left">
+        <div className="max-w-7xl mx-auto px-6 w-full z-20 grid lg:grid-cols-12 gap-12 items-center pt-24 lg:pt-28 pb-16 lg:pb-0">
+          <div className="lg:col-span-7 flex flex-col gap-6 text-center lg:text-left items-center lg:items-start">
             <span className="inline-flex items-center gap-2 bg-white/10 border border-white/15 backdrop-blur-md text-blue-300 font-bold text-xs px-3.5 py-1.5 rounded-full w-fit">
               <Sparkles className="w-3.5 h-3.5 text-blue-400" /> AGENT DE VOYAGE DE PRESTIGE
             </span>
-            <h1 className="font-heading text-4xl sm:text-5xl lg:text-7xl font-black text-white leading-none tracking-tight">
+            <h1 className="font-heading text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black text-white leading-none tracking-tight">
               Explorez le monde,<br />
               conquérez vos <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-300">rêves.</span>
             </h1>
             <p className="text-base sm:text-lg lg:text-xl text-slate-300/90 leading-relaxed max-w-xl">
               Des expéditions internationales mémorables aux pèlerinages sacrés de l'Omra, nous façonnons des séjours exclusifs et sur-mesure d'un raffinement incomparable.
             </p>
-            <div className="flex flex-wrap gap-4 mt-2">
+            <div className="flex flex-wrap gap-4 mt-2 justify-center lg:justify-start">
               <Link href="/international" className="px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white font-extrabold rounded-xl shadow-lg shadow-blue-600/30 transition-all transform hover:-translate-y-0.5">
                 Explorer les Séjours
               </Link>
@@ -254,17 +254,55 @@ export default function LandingPage() {
             </div>
           </div>
           
-          {/* Glassmorphic Signature Destinations Card */}
-          <div className="lg:col-span-4 flex lg:justify-end justify-start">
-            <div className="glass-card backdrop-blur-xl bg-slate-900/60 border border-white/15 p-6 rounded-2xl shadow-2xl flex items-center gap-4 hover:border-white/30 transition-all transform hover:scale-102 duration-300">
-              <div className="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center border border-blue-500/20">
-                <Compass className="w-6 h-6 text-blue-400 animate-spin-slow" />
-              </div>
-              <div>
-                <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">Destinations Signature</div>
-                <div className="text-sm font-extrabold text-white mt-0.5">Rome — Tokyo — La Mecque</div>
-              </div>
+          {/* Right Column: Signature Destinations Showcase (Desktop Only) */}
+          <div className="hidden lg:flex lg:col-span-5 flex-col gap-4 w-full max-w-md ml-auto">
+            <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-2">
+              <Compass className="w-4 h-4 text-blue-400 animate-spin-slow" /> Destinations Signature
             </div>
+            
+            {[
+              {
+                title: "Rome Éternelle",
+                desc: "Circuits exclusifs à la découverte de l'histoire, du Colisée et du raffinement de la Dolce Vita.",
+                img: "https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=150&auto=format&fit=crop&q=60",
+                link: "/international"
+              },
+              {
+                title: "Tokyo Mystique",
+                desc: "Immersion sur-mesure entre sanctuaires shintoïstes, Mont Fuji et l'effervescence de Shibuya.",
+                img: "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=150&auto=format&fit=crop&q=60",
+                link: "/international"
+              },
+              {
+                title: "Omra Privilège",
+                desc: "Pèlerinages guidés haut de gamme avec hôtels d'exception en accès direct à l'Esplanade du Haram.",
+                img: "https://images.unsplash.com/photo-1591604021695-0c69b7c05981?w=150&auto=format&fit=crop&q=60",
+                link: "/omra"
+              }
+            ].map((item, idx) => (
+              <Link 
+                href={item.link} 
+                key={idx}
+                className="group flex items-center gap-4 p-4 rounded-2xl border border-white/10 bg-slate-900/40 backdrop-blur-xl hover:bg-slate-900/60 hover:border-blue-500/40 transition-all duration-300 shadow-lg hover:shadow-blue-950/20 transform hover:-translate-y-0.5"
+              >
+                <div className="relative w-16 h-16 rounded-xl overflow-hidden shrink-0 border border-white/10">
+                  <img 
+                    src={item.img} 
+                    alt={item.title} 
+                    className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-500"
+                  />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-heading text-sm font-bold text-white group-hover:text-blue-400 transition-colors flex items-center gap-1.5">
+                    {item.title} 
+                    <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-1 leading-snug line-clamp-2">
+                    {item.desc}
+                  </p>
+                </div>
+              </Link>
+            ))}
           </div>
         </div>
       </section>
