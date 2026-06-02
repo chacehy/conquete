@@ -1,19 +1,22 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { 
   Sliders, Inbox, Clock, CheckCircle2, FileSpreadsheet, Plus, 
   Trash2, Edit3, X, Save, AlertCircle, Check, ArrowLeft, RefreshCw, 
-  PlusCircle, MinusCircle, ShieldCheck, HelpCircle, Eye, Star
+  PlusCircle, MinusCircle, ShieldCheck, HelpCircle, Eye, Star, LogOut
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { Package, Lead, ItineraryDay } from '@/types';
 
 export default function AdminPage() {
+  const router = useRouter();
   const [leads, setLeads] = useState<Lead[]>([]);
   const [packages, setPackages] = useState<Package[]>([]);
   const [loading, setLoading] = useState(true);
+  const [adminEmail, setAdminEmail] = useState('');
   const [activeTab, setActiveTab] = useState<'leads' | 'packages'>('leads');
 
   // Filters
@@ -49,6 +52,10 @@ export default function AdminPage() {
 
   useEffect(() => {
     fetchAdminData();
+    // Get current admin user
+    supabase.auth.getUser().then(({ data }) => {
+      if (data?.user?.email) setAdminEmail(data.user.email);
+    });
   }, []);
 
   const addToast = (message: string, type: 'success' | 'error' = 'success') => {
@@ -344,10 +351,24 @@ export default function AdminPage() {
             <Sliders className="w-4.5 h-4.5" /> Catalogue Voyages
           </button>
         </nav>
-        <div className="p-4 border-t border-slate-800">
+        <div className="p-4 border-t border-slate-800 space-y-2">
+          {adminEmail && (
+            <div className="px-3 py-2 text-[11px] text-slate-500 truncate" title={adminEmail}>
+              Connecté : <span className="text-slate-300 font-semibold">{adminEmail}</span>
+            </div>
+          )}
           <Link href="/" className="w-full flex items-center justify-center gap-2 px-4 py-2.5 border border-slate-700 hover:border-slate-500 hover:bg-slate-800 rounded-lg text-xs font-bold text-slate-300 transition-all">
             <ArrowLeft className="w-4.5 h-4.5" /> Retour au Site Vitrine
           </Link>
+          <button
+            onClick={async () => {
+              await supabase.auth.signOut();
+              router.push('/admin/login');
+            }}
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 border border-rose-800/50 hover:border-rose-500 hover:bg-rose-950/30 rounded-lg text-xs font-bold text-rose-400 transition-all cursor-pointer"
+          >
+            <LogOut className="w-4 h-4" /> Déconnexion
+          </button>
         </div>
       </aside>
 
