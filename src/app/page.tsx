@@ -12,8 +12,10 @@ import { supabase } from '@/lib/supabase';
 import { Package } from '@/types';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { useLanguage } from '@/lib/LanguageContext';
 
 export default function LandingPage() {
+  const { t } = useLanguage();
   // Database States
   const [packages, setPackages] = useState<Package[]>([]);
   const [loading, setLoading] = useState(true);
@@ -235,21 +237,21 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-6 w-full z-20 grid lg:grid-cols-12 gap-12 items-center pt-24 lg:pt-28 pb-16 lg:pb-0">
           <div className="lg:col-span-7 flex flex-col gap-6 text-center lg:text-left items-center lg:items-start">
             <span className="inline-flex items-center gap-2 bg-white/10 border border-white/15 backdrop-blur-md text-blue-300 font-bold text-xs px-3.5 py-1.5 rounded-full w-fit">
-              <Sparkles className="w-3.5 h-3.5 text-blue-400" /> AGENT DE VOYAGE DE PRESTIGE
+              <Sparkles className="w-3.5 h-3.5 text-blue-400" /> {t('hero_badge')}
             </span>
             <h1 className="font-heading text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black text-white leading-none tracking-tight">
-              Explorez le monde,<br />
-              conquérez vos <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-300">rêves.</span>
+              {t('hero_title_1')}<br />
+              {t('hero_title_2')}<span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-300">{t('hero_title_3')}</span>
             </h1>
             <p className="text-base sm:text-lg lg:text-xl text-slate-300/90 leading-relaxed max-w-xl">
-              Des expéditions internationales mémorables aux pèlerinages sacrés de l'Omra, nous façonnons des séjours exclusifs et sur-mesure d'un raffinement incomparable.
+              {t('hero_desc')}
             </p>
             <div className="flex flex-wrap gap-4 mt-2 justify-center lg:justify-start">
               <Link href="/international" className="px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white font-extrabold rounded-xl shadow-lg shadow-blue-600/30 transition-all transform hover:-translate-y-0.5">
-                Explorer les Séjours
+                {t('hero_btn_explore')}
               </Link>
               <Link href="/sur-mesure" className="px-8 py-4 border border-white/20 bg-white/5 backdrop-blur-md hover:bg-white/15 hover:border-white/40 text-white font-bold rounded-xl transition-all transform hover:-translate-y-0.5">
-                Créer un Itinéraire
+                {t('hero_btn_custom')}
               </Link>
             </div>
           </div>
@@ -257,25 +259,25 @@ export default function LandingPage() {
           {/* Right Column: Signature Destinations Showcase (Desktop Only) */}
           <div className="hidden lg:flex lg:col-span-5 flex-col gap-4 w-full max-w-md ml-auto">
             <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-2">
-              <Compass className="w-4 h-4 text-blue-400 animate-spin-slow" /> Destinations Signature
+              <Compass className="w-4 h-4 text-blue-400 animate-spin-slow" /> {t('hero_signature')}
             </div>
             
             {[
               {
-                title: "Rome Éternelle",
-                desc: "Circuits exclusifs à la découverte de l'histoire, du Colisée et du raffinement de la Dolce Vita.",
+                title: t('dest_rome_title'),
+                desc: t('dest_rome_desc'),
                 img: "https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=150&auto=format&fit=crop&q=60",
                 link: "/international"
               },
               {
-                title: "Tokyo Mystique",
-                desc: "Immersion sur-mesure entre sanctuaires shintoïstes, Mont Fuji et l'effervescence de Shibuya.",
+                title: t('dest_tokyo_title'),
+                desc: t('dest_tokyo_desc'),
                 img: "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=150&auto=format&fit=crop&q=60",
                 link: "/international"
               },
               {
-                title: "Omra Privilège",
-                desc: "Pèlerinages guidés haut de gamme avec hôtels d'exception en accès direct à l'Esplanade du Haram.",
+                title: t('dest_mecca_title'),
+                desc: t('dest_mecca_desc'),
                 img: "https://images.unsplash.com/photo-1591604021695-0c69b7c05981?w=150&auto=format&fit=crop&q=60",
                 link: "/omra"
               }
@@ -570,7 +572,7 @@ export default function LandingPage() {
                   <div className="flex items-center justify-between pt-4 border-t border-slate-100 mt-auto">
                     <div>
                       <span className="text-[10px] font-bold uppercase text-slate-400">À partir de</span>
-                      <div className="text-lg font-extrabold text-blue-600">{pkg.price_adult} €</div>
+                      <div className="text-lg font-extrabold text-blue-600">{pkg.price_adult} DA</div>
                     </div>
                     <button 
                       onClick={() => openPackageDetails(pkg)}
@@ -664,7 +666,7 @@ export default function LandingPage() {
                   <div className="flex items-center justify-between pt-4 border-t border-slate-100 mt-auto">
                     <div>
                       <span className="text-[10px] font-bold uppercase text-slate-400">À partir de</span>
-                      <div className="text-lg font-extrabold text-blue-600">{pkg.price_adult} €</div>
+                      <div className="text-lg font-extrabold text-blue-600">{pkg.price_adult} DA</div>
                     </div>
                     <button 
                       onClick={() => openPackageDetails(pkg)}
@@ -824,7 +826,7 @@ export default function LandingPage() {
                   <div className="flex items-center justify-between pt-4 border-t border-blue-100 mt-2">
                     <div>
                       <span className="text-[10px] font-bold uppercase text-slate-400">Total Indicatif</span>
-                      <div className="text-2xl font-black text-blue-600">{getCalcTotal().toLocaleString('fr-FR')} €</div>
+                      <div className="text-2xl font-black text-blue-600">{getCalcTotal().toLocaleString('fr-FR')} DA</div>
                     </div>
                     {!showDrawerBookingForm && (
                       <button 

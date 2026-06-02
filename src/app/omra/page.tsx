@@ -218,7 +218,7 @@ export default function OmraPage() {
                   <div className="flex items-center justify-between pt-4 border-t border-slate-100 mt-auto">
                     <div>
                       <span className="text-[10px] font-bold uppercase text-slate-400">À partir de</span>
-                      <div className="text-xl font-extrabold text-blue-600">{pkg.price_adult} € <span className="text-xs text-slate-500 font-normal">/pers</span></div>
+                      <div className="text-xl font-extrabold text-blue-600">{pkg.price_adult} DA <span className="text-xs text-slate-500 font-normal">/pers</span></div>
                     </div>
                     <button 
                       onClick={() => openPackageDetails(pkg)}
@@ -406,7 +406,7 @@ export default function OmraPage() {
                   <div className="flex items-center justify-between pt-4 border-t border-blue-100 mt-2">
                     <div>
                       <span className="text-[10px] font-bold uppercase text-slate-400">Total Indicatif</span>
-                      <div className="text-2xl font-black text-blue-600">{getCalcTotal().toLocaleString('fr-FR')} €</div>
+                      <div className="text-2xl font-black text-blue-600">{getCalcTotal().toLocaleString('fr-FR')} DA</div>
                     </div>
                     {!showDrawerBookingForm && (
                       <button 

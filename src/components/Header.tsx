@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Compass, Sliders } from 'lucide-react';
+import { Compass, Sliders, Globe } from 'lucide-react';
+import { useLanguage } from '@/lib/LanguageContext';
 
 interface HeaderProps {
   transparent?: boolean;
@@ -10,6 +11,7 @@ interface HeaderProps {
 
 export default function Header({ transparent = false }: HeaderProps) {
   const pathname = usePathname();
+  const { language, toggleLanguage, t } = useLanguage();
 
   const isActive = (path: string) => {
     if (pathname === path) {
@@ -33,17 +35,31 @@ export default function Header({ transparent = false }: HeaderProps) {
 
         <nav className="hidden md:flex items-center gap-8 font-semibold text-sm">
           <Link href="/international" className={`transition-colors ${isActive('/international')}`}>
-            International
+            {t('nav_international')}
           </Link>
           <Link href="/omra" className={`transition-colors ${isActive('/omra')}`}>
-            Omra & Hadj
+            {t('nav_omra')}
           </Link>
           <Link href="/sur-mesure" className={`transition-colors ${isActive('/sur-mesure')}`}>
-            Voyage sur-mesure
+            {t('nav_tailormade')}
           </Link>
         </nav>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
+          {/* Language Toggle */}
+          <button 
+            onClick={toggleLanguage}
+            className={`px-3 py-2 border rounded-lg text-xs font-black transition-all cursor-pointer flex items-center gap-1.5 ${
+              transparent 
+                ? 'border-white/20 text-white hover:border-white/50 hover:bg-white/5' 
+                : 'border-slate-200 text-slate-800 hover:border-blue-500 hover:bg-slate-50'
+            }`}
+            title={language === 'fr' ? 'Changer la langue en Arabe' : 'Changer la langue en Français'}
+          >
+            <Globe className="w-3.5 h-3.5" />
+            <span>{language === 'fr' ? 'AR' : 'FR'}</span>
+          </button>
+
           <Link 
             href="/admin" 
             className={`hidden md:flex px-4 py-2 border rounded-lg text-sm font-semibold items-center gap-2 transition-all ${
@@ -52,13 +68,13 @@ export default function Header({ transparent = false }: HeaderProps) {
                 : 'border-slate-200 hover:border-blue-500 text-slate-800 hover:bg-slate-50'
             }`}
           >
-            <Sliders className="w-4 h-4 text-blue-400" /> Espace Agent
+            <Sliders className="w-4 h-4 text-blue-400" /> {t('nav_agent')}
           </Link>
           <Link 
             href="/sur-mesure" 
-            className="px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-semibold shadow-md shadow-blue-500/20 transition-all"
+            className="px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-semibold shadow-md shadow-blue-500/20 transition-all whitespace-nowrap"
           >
-            Demander un Devis
+            {t('nav_quote')}
           </Link>
         </div>
       </div>

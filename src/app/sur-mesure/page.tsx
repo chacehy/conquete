@@ -226,10 +226,10 @@ export default function SurMesurePage() {
                           onChange={e => setSmBudget(e.target.value)}
                           className="px-3 py-2.5 rounded-lg border border-slate-200 bg-white text-sm font-semibold"
                         >
-                          <option value="Eco">Éco (&lt; 1500€)</option>
-                          <option value="Confort">Confort (1500€ - 3000€)</option>
-                          <option value="Premium">Premium (3000€ - 5000€)</option>
-                          <option value="Luxe">Luxe (&gt; 5000€)</option>
+                          <option value="Eco">Éco (&lt; 1500 DA)</option>
+                          <option value="Confort">Confort (1500 DA - 3000 DA)</option>
+                          <option value="Premium">Premium (3000 DA - 5000 DA)</option>
+                          <option value="Luxe">Luxe (&gt; 5000 DA)</option>
                         </select>
                       </div>
                       <div className="flex flex-col gap-1.5">

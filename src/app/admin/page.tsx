@@ -130,7 +130,7 @@ export default function AdminPage() {
         case 'hotel':
           return `Hôtel à ${det.city || ''} | Chambre: ${det.room_type || ''} | Dates: Du ${det.date_checkin || ''} au ${det.date_checkout || ''}`;
         case 'package':
-          return `Séjour: ${det.package_title || ''} | Passagers: ${det.adults || 0} Adulte(s), ${det.children || 0} Enfant(s) | Tarif total: ${det.total_price || 0}€ | Départ: ${det.preferred_date || ''}`;
+          return `Séjour: ${det.package_title || ''} | Passagers: ${det.adults || 0} Adulte(s), ${det.children || 0} Enfant(s) | Tarif total: ${det.total_price || 0} DA | Départ: ${det.preferred_date || ''}`;
         case 'sur_mesure':
           return `Sur-mesure: ${det.destinations || ''} (${det.duration || ''}) | Passagers: ${det.passengers || ''} | Profil: ${det.profile || ''} | Budget: ${det.budget || ''} | Notes: ${det.notes || ''}`;
         default:
@@ -479,7 +479,7 @@ export default function AdminPage() {
                                   <>
                                     <div className="font-semibold text-slate-900">{det.package_title}</div>
                                     <div className="text-xs text-slate-500">Passagers: {det.adults} Adulte(s), {det.children} Enfant(s)</div>
-                                    <div className="text-xs text-blue-600 font-bold">Total estimé: {det.total_price} € (Départ: {det.preferred_date})</div>
+                                    <div className="text-xs text-blue-600 font-bold">Total estimé: {det.total_price} DA (Départ: {det.preferred_date})</div>
                                   </>
                                 );
                               } else if (lead.type === 'sur_mesure') {
@@ -599,8 +599,8 @@ export default function AdminPage() {
                                 </span>
                               </td>
                               <td className="py-4 px-6">
-                                <div className="font-semibold text-slate-900">Adultes: {pkg.price_adult} €</div>
-                                <div className="text-xs text-slate-500">Enfants: {pkg.price_child} €</div>
+                                 <div className="font-semibold text-slate-900">Adultes: {pkg.price_adult} DA</div>
+                                 <div className="text-xs text-slate-500">Enfants: {pkg.price_child} DA</div>
                               </td>
                               <td className="py-4 px-6 font-medium text-slate-700">
                                 {pkg.duration}
@@ -730,7 +730,7 @@ export default function AdminPage() {
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Prix Adulte (€)</label>
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Prix Adulte (DA)</label>
                     <input 
                       type="number" 
                       value={pkgPriceAdult} 
@@ -741,7 +741,7 @@ export default function AdminPage() {
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Prix Enfant (€)</label>
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Prix Enfant (DA)</label>
                     <input 
                       type="number" 
                       value={pkgPriceChild} 
