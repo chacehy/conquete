@@ -262,49 +262,38 @@ export default function LandingPage() {
               <Compass className="w-4 h-4 text-blue-400 animate-spin-slow" /> {t('hero_signature')}
             </div>
             
-            {[
-              {
-                title: t('dest_rome_title'),
-                desc: t('dest_rome_desc'),
-                img: "https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=150&auto=format&fit=crop&q=60",
-                link: "/international"
-              },
-              {
-                title: t('dest_tokyo_title'),
-                desc: t('dest_tokyo_desc'),
-                img: "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=150&auto=format&fit=crop&q=60",
-                link: "/international"
-              },
-              {
-                title: t('dest_mecca_title'),
-                desc: t('dest_mecca_desc'),
-                img: "https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?w=150&auto=format&fit=crop&q=60",
-                link: "/omra"
-              }
-            ].map((item, idx) => (
-              <Link 
-                href={item.link} 
-                key={idx}
-                className="group flex items-center gap-4 p-4 rounded-2xl border border-white/10 bg-slate-900/40 backdrop-blur-xl hover:bg-slate-900/60 hover:border-blue-500/40 transition-all duration-300 shadow-lg hover:shadow-blue-950/20 transform hover:-translate-y-0.5"
-              >
-                <div className="relative w-16 h-16 rounded-xl overflow-hidden shrink-0 border border-white/10">
-                  <img 
-                    src={item.img} 
-                    alt={item.title} 
-                    className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-500"
-                  />
+            {packages.filter(p => p.is_signature).length > 0 ? (
+              packages.filter(p => p.is_signature).slice(0, 3).map((pkg, idx) => (
+                <Link 
+                  href={pkg.type === 'omra' ? '/omra' : '/international'} 
+                  key={pkg.id}
+                  className="group flex items-center gap-4 p-4 rounded-2xl border border-white/10 bg-slate-900/40 backdrop-blur-xl hover:bg-slate-900/60 hover:border-blue-500/40 transition-all duration-300 shadow-lg hover:shadow-blue-950/20 transform hover:-translate-y-0.5"
+                >
+                  <div className="relative w-16 h-16 rounded-xl overflow-hidden shrink-0 border border-white/10">
+                    <img 
+                      src={pkg.image_url} 
+                      alt={tText(pkg.title)} 
+                      className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-500"
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-heading text-sm font-bold text-white group-hover:text-blue-400 transition-colors flex items-center gap-1.5">
+                      {tText(pkg.title)} 
+                      <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
+                    </h3>
+                    <p className="text-xs text-slate-400 mt-1 leading-snug line-clamp-2">
+                      {tText(pkg.description)}
+                    </p>
+                  </div>
+                </Link>
+              ))
+            ) : (
+              !loading && (
+                <div className="p-4 rounded-2xl border border-white/5 bg-slate-900/20 backdrop-blur-sm text-center">
+                  <p className="text-xs text-slate-500">{t('no_signature_hint')}</p>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-heading text-sm font-bold text-white group-hover:text-blue-400 transition-colors flex items-center gap-1.5">
-                    {item.title} 
-                    <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
-                  </h3>
-                  <p className="text-xs text-slate-400 mt-1 leading-snug line-clamp-2">
-                    {item.desc}
-                  </p>
-                </div>
-              </Link>
-            ))}
+              )
+            )}
           </div>
         </div>
       </section>

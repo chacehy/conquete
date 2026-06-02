@@ -22,6 +22,7 @@ export interface Package {
   departure_dates?: string[] | null;
   hotel_proximity?: string | null;
   accompaniment?: string | null;
+  is_signature?: boolean;
 }
 
 export interface Lead {

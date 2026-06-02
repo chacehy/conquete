@@ -30,8 +30,9 @@ const translations: Record<Language, Record<string, string>> = {
     hero_btn_explore: "Explorer les Séjours",
     hero_btn_custom: "Créer un Itinéraire",
     hero_signature: "Destinations Signature",
+    no_signature_hint: "Marquez vos meilleurs voyages comme \"Signature\" dans le backoffice pour les afficher ici.",
 
-    // Destinations Right Column
+    // Destinations Right Column (legacy, kept for reference)
     dest_rome_title: "Rome Éternelle",
     dest_rome_desc: "Circuits exclusifs à la découverte de l'histoire, du Colisée et du raffinement de la Dolce Vita.",
     dest_tokyo_title: "Tokyo Mystique",
@@ -233,8 +234,9 @@ const translations: Record<Language, Record<string, string>> = {
     hero_btn_explore: "استكشف الرحلات",
     hero_btn_custom: "خطط لرحلتك",
     hero_signature: "وجهاتنا المميزة",
+    no_signature_hint: "ضع علامة \"Signature\" على أفضل رحلاتك في لوحة التحكم لعرضها هنا.",
 
-    // Destinations Right Column
+    // Destinations Right Column (legacy, kept for reference)
     dest_rome_title: "روما الخالدة",
     dest_rome_desc: "رحلات حصرية لاكتشاف التاريخ، الكولوسيوم ورقّة الحياة الإيطالية.",
     dest_tokyo_title: "طوكيو الساحرة",
