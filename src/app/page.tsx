@@ -278,7 +278,7 @@ export default function LandingPage() {
               {
                 title: t('dest_mecca_title'),
                 desc: t('dest_mecca_desc'),
-                img: "https://images.unsplash.com/photo-1591604021695-0c69b7c05981?w=150&auto=format&fit=crop&q=60",
+                img: "https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?w=150&auto=format&fit=crop&q=60",
                 link: "/omra"
               }
             ].map((item, idx) => (
