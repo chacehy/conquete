@@ -15,7 +15,7 @@ import Footer from '@/components/Footer';
 import { useLanguage } from '@/lib/LanguageContext';
 
 export default function LandingPage() {
-  const { t } = useLanguage();
+  const { t, tText, language } = useLanguage();
   // Database States
   const [packages, setPackages] = useState<Package[]>([]);
   const [loading, setLoading] = useState(true);
@@ -66,7 +66,7 @@ export default function LandingPage() {
         setPackages(data || []);
       } catch (err) {
         console.error('Error fetching packages:', err);
-        addToast('Impossible de charger les voyages.', 'error');
+        addToast(t('toast_error_load'), 'error');
       } finally {
         setLoading(false);
       }
@@ -101,11 +101,11 @@ export default function LandingPage() {
         details
       }]);
       if (error) throw error;
-      addToast('Votre demande a été prise en compte avec succès !', 'success');
+      addToast(t('toast_success_lead'), 'success');
       return true;
     } catch (err) {
       console.error(err);
-      addToast('Erreur lors de l\'enregistrement.', 'error');
+      addToast(t('toast_error_lead'), 'error');
       return false;
     }
   };
@@ -114,14 +114,14 @@ export default function LandingPage() {
   const handleBilletterieSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!billDep || !billArr || !billDateDep) {
-      addToast('Veuillez remplir les informations obligatoires.', 'error');
+      addToast(t('toast_required_fields'), 'error');
       return;
     }
 
-    const email = prompt("Adresse e-mail pour recevoir votre devis express :");
+    const email = prompt(t('prompt_email_devis'));
     if (!email) return;
-    const name = prompt("Nom complet :") || "Client Billetterie";
-    const phone = prompt("Téléphone :") || "Non spécifié";
+    const name = prompt(t('prompt_name')) || "Client Billetterie";
+    const phone = prompt(t('prompt_phone')) || "Non spécifié";
 
     const details = {
       departure: billDep,
@@ -146,14 +146,14 @@ export default function LandingPage() {
   const handleHotelsSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!hotelCity || !hotelCheckIn || !hotelCheckOut) {
-      addToast('Veuillez remplir les informations de recherche.', 'error');
+      addToast(t('toast_search_required'), 'error');
       return;
     }
 
-    const email = prompt("Adresse e-mail pour recevoir les propositions :");
+    const email = prompt(t('prompt_email_proposition'));
     if (!email) return;
-    const name = prompt("Nom complet :") || "Client Hôtel";
-    const phone = prompt("Téléphone :") || "Non spécifié";
+    const name = prompt(t('prompt_name')) || "Client Hôtel";
+    const phone = prompt(t('prompt_phone')) || "Non spécifié";
 
     const details = {
       city: hotelCity,
@@ -172,7 +172,7 @@ export default function LandingPage() {
   const handleDrawerReservation = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedPackage || !bookName || !bookEmail || !bookPhone || !bookDate) {
-      addToast('Veuillez remplir toutes les informations.', 'error');
+      addToast(t('toast_required_fields'), 'error');
       return;
     }
 
@@ -322,7 +322,7 @@ export default function LandingPage() {
               }`}
             >
               <Plane className="w-5 h-5" />
-              Billetterie Express
+              {t('tab_flights')}
             </button>
             <button 
               onClick={() => setActiveSearchTab('sejours')}
@@ -333,7 +333,7 @@ export default function LandingPage() {
               }`}
             >
               <Compass className="w-5 h-5" />
-              Séjours Organisés
+              {t('tab_packages')}
             </button>
             <button 
               onClick={() => setActiveSearchTab('hotels')}
@@ -344,7 +344,7 @@ export default function LandingPage() {
               }`}
             >
               <Hotel className="w-5 h-5" />
-              Hôtels
+              {t('tab_hotels')}
             </button>
             <button 
               onClick={() => setActiveSearchTab('carte')}
@@ -355,7 +355,7 @@ export default function LandingPage() {
               }`}
             >
               <Sliders className="w-5 h-5" />
-              Sur-Mesure
+              {t('tab_custom')}
             </button>
           </div>
 
@@ -364,10 +364,10 @@ export default function LandingPage() {
               <form onSubmit={handleBilletterieSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-5">
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Départ</label>
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">{t('field_dep')}</label>
                     <input 
                       type="text" 
-                      placeholder="Ex: Paris (CDG)" 
+                      placeholder={t('placeholder_dep')} 
                       value={billDep}
                       onChange={e => setBillDep(e.target.value)}
                       className="px-4 py-3 rounded-lg border border-slate-200 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all font-medium"
@@ -375,10 +375,10 @@ export default function LandingPage() {
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Destination</label>
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">{t('field_arr')}</label>
                     <input 
                       type="text" 
-                      placeholder="Ex: Alger (ALG)" 
+                      placeholder={t('placeholder_arr')} 
                       value={billArr}
                       onChange={e => setBillArr(e.target.value)}
                       className="px-4 py-3 rounded-lg border border-slate-200 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all font-medium"
@@ -386,7 +386,7 @@ export default function LandingPage() {
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Aller</label>
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">{t('field_date_dep')}</label>
                     <input 
                       type="date" 
                       value={billDateDep}
@@ -396,7 +396,7 @@ export default function LandingPage() {
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Retour (Optionnel)</label>
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">{t('field_date_ret')}</label>
                     <input 
                       type="date" 
                       value={billDateRet}
@@ -405,15 +405,15 @@ export default function LandingPage() {
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Bagages</label>
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">{t('field_luggage')}</label>
                     <select 
                       value={billLuggage}
                       onChange={e => setBillLuggage(e.target.value)}
                       className="px-4 py-3 rounded-lg border border-slate-200 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all font-medium text-slate-700 bg-white"
                     >
-                      <option value="Cabin Only">Cabine seulement</option>
-                      <option value="Cabin + Hold">Cabine + 1 Bagage en soute</option>
-                      <option value="2 Hold Luggage">Cabine + 2 Bagages en soute</option>
+                      <option value="Cabin Only">{t('opt_cabin_only')}</option>
+                      <option value="Cabin + Hold">{t('opt_cabin_hold')}</option>
+                      <option value="2 Hold Luggage">{t('opt_cabin_2hold')}</option>
                     </select>
                   </div>
                 </div>
@@ -426,7 +426,7 @@ export default function LandingPage() {
                         onChange={e => setBillTransfer(e.target.checked)}
                         className="w-5 h-5 border-slate-300 rounded text-blue-600 focus:ring-blue-500 accent-blue-600" 
                       />
-                      Transferts aéroports
+                      {t('field_transfer')}
                     </label>
                     <label className="flex items-center gap-2 font-medium text-slate-700 cursor-pointer">
                       <input 
@@ -435,11 +435,11 @@ export default function LandingPage() {
                         onChange={e => setBillFlex(e.target.checked)}
                         className="w-5 h-5 border-slate-300 rounded text-blue-600 focus:ring-blue-500 accent-blue-600" 
                       />
-                      Dates flexibles
+                      {t('field_flex')}
                     </label>
                   </div>
                   <button type="submit" className="w-full sm:w-auto px-6 py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2 shadow-md shadow-blue-500/20 cursor-pointer">
-                    <Send className="w-4 h-4" /> Demander un Devis Express
+                    <Send className="w-4 h-4" /> {t('btn_search_flights')}
                   </button>
                 </div>
               </form>
@@ -447,10 +447,10 @@ export default function LandingPage() {
 
             {activeSearchTab === 'sejours' && (
               <div className="text-center py-6 flex flex-col items-center gap-3">
-                <h3 className="font-heading text-xl font-bold text-slate-900">Explorez nos circuits guidés thématiques</h3>
-                <p className="text-slate-500 max-w-md">Découvrez nos fiches séjours structurées avec itinéraires détaillés.</p>
+                <h3 className="font-heading text-xl font-bold text-slate-900">{t('lbl_explore_circuits_title')}</h3>
+                <p className="text-slate-500 max-w-md">{t('lbl_explore_circuits_desc')}</p>
                 <Link href="/international" className="mt-2 px-6 py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 shadow-md">
-                  Voir le Catalogue International
+                  {t('lbl_voir_cat_int')}
                 </Link>
               </div>
             )}
@@ -459,10 +459,10 @@ export default function LandingPage() {
               <form onSubmit={handleHotelsSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5">
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Destination / Ville</label>
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">{t('field_city')}</label>
                     <input 
                       type="text" 
-                      placeholder="Ex: La Mecque, Rome, Tokyo" 
+                      placeholder={t('placeholder_city')} 
                       value={hotelCity}
                       onChange={e => setHotelCity(e.target.value)}
                       className="px-4 py-3 rounded-lg border border-slate-200 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all font-medium"
@@ -470,19 +470,19 @@ export default function LandingPage() {
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Type de Chambre</label>
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">{t('field_room')}</label>
                     <select 
                       value={hotelRoom}
                       onChange={e => setHotelRoom(e.target.value)}
                       className="px-4 py-3 rounded-lg border border-slate-200 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all font-medium text-slate-700 bg-white"
                     >
-                      <option value="Simple">Chambre Simple</option>
-                      <option value="Double">Chambre Double</option>
-                      <option value="Triple">Chambre Triple</option>
+                      <option value="Simple">{t('opt_room_single')}</option>
+                      <option value="Double">{t('opt_room_double')}</option>
+                      <option value="Triple">{t('opt_room_triple')}</option>
                     </select>
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Date d'arrivée</label>
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">{t('field_checkin')}</label>
                     <input 
                       type="date" 
                       value={hotelCheckIn}
@@ -492,7 +492,7 @@ export default function LandingPage() {
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Date de départ</label>
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">{t('field_checkout')}</label>
                     <input 
                       type="date" 
                       value={hotelCheckOut}
@@ -504,7 +504,7 @@ export default function LandingPage() {
                 </div>
                 <div className="text-right pt-2 border-t border-slate-100">
                   <button type="submit" className="w-full sm:w-auto px-6 py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2 shadow-md cursor-pointer">
-                    Rechercher & Demander Devis
+                    {t('btn_search_hotels')}
                   </button>
                 </div>
               </form>
@@ -512,10 +512,10 @@ export default function LandingPage() {
 
             {activeSearchTab === 'carte' && (
               <div className="text-center py-6 flex flex-col items-center gap-3">
-                <h3 className="font-heading text-xl font-bold text-slate-900">Itinéraire 100% personnalisé</h3>
-                <p className="text-slate-500 max-w-md">Accédez à notre concepteur de circuits pour un séjour sur-mesure unique.</p>
+                <h3 className="font-heading text-xl font-bold text-slate-900">{t('lbl_custom_route_title')}</h3>
+                <p className="text-slate-500 max-w-md">{t('lbl_custom_route_desc')}</p>
                 <Link href="/sur-mesure" className="mt-2 px-6 py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 shadow-md">
-                  Concevoir mon Voyage
+                  {t('lbl_concevoir_voyage')}
                 </Link>
               </div>
             )}
@@ -527,12 +527,12 @@ export default function LandingPage() {
       <section className="max-w-7xl mx-auto px-6 py-20 lg:py-28 w-full">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
           <div className="flex flex-col gap-3">
-            <span className="text-xs font-extrabold text-blue-600 uppercase tracking-widest">Évasion Globale</span>
-            <h2 className="font-heading text-3xl sm:text-4xl font-extrabold text-slate-950">Circuits Internationaux Vedettes</h2>
+            <span className="text-xs font-extrabold text-blue-600 uppercase tracking-widest">{t('lbl_evasion')}</span>
+            <h2 className="font-heading text-3xl sm:text-4xl font-extrabold text-slate-950">{t('lbl_circuits_vedettes')}</h2>
             <div className="w-20 h-1.5 bg-blue-600 rounded-full"></div>
           </div>
           <Link href="/international" className="text-blue-600 font-bold flex items-center gap-1 hover:text-blue-700 group text-sm">
-            Voir tout le catalogue <ArrowRight className="w-4.5 h-4.5 group-hover:translate-x-1 transition-transform" />
+            {t('lbl_voir_catalogue')} <ArrowRight className="w-4.5 h-4.5 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
 
@@ -542,7 +542,7 @@ export default function LandingPage() {
           </div>
         ) : intTeaser.length === 0 ? (
           <div className="text-center py-12 bg-white rounded-xl border border-slate-100 text-slate-500">
-            Aucun circuit international disponible.
+            {t('lbl_no_int_packages')}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -550,35 +550,35 @@ export default function LandingPage() {
               <div key={pkg.id} className="bg-white rounded-2xl overflow-hidden border border-slate-200/50 shadow-sm hover:shadow-xl hover:border-blue-200 transition-all flex flex-col group">
                 <div className="relative h-56 w-full overflow-hidden">
                   <img 
-                    src={pkg.image_url || 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=800&q=80'} 
-                    alt={pkg.title} 
+                     src={pkg.image_url || 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=800&q=80'} 
+                    alt={tText(pkg.title)} 
                     className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500" 
                   />
                   <span className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm text-blue-600 text-xs font-extrabold px-3 py-1.5 rounded-md shadow-sm">
-                    International
+                    {t('nav_international')}
                   </span>
                 </div>
                 <div className="p-6 flex flex-col flex-1 gap-3">
                   <div className="flex items-center gap-4 text-xs font-bold text-slate-500">
                     <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4 text-blue-600" /> {pkg.duration}</span>
-                    <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4 text-blue-600" /> {pkg.destinations.split(',').length} Dest.</span>
+                    <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4 text-blue-600" /> {pkg.destinations.split(',').length} {t('dest_count')}</span>
                   </div>
                   <h3 className="font-heading text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-1">
-                    {pkg.title}
+                    {tText(pkg.title)}
                   </h3>
                   <p className="text-sm text-slate-600 line-clamp-2 leading-relaxed flex-1">
-                    {pkg.description}
+                    {tText(pkg.description)}
                   </p>
                   <div className="flex items-center justify-between pt-4 border-t border-slate-100 mt-auto">
                     <div>
-                      <span className="text-[10px] font-bold uppercase text-slate-400">À partir de</span>
+                      <span className="text-[10px] font-bold uppercase text-slate-400">{t('lbl_a_partir_de')}</span>
                       <div className="text-lg font-extrabold text-blue-600">{pkg.price_adult} DA</div>
                     </div>
                     <button 
                       onClick={() => openPackageDetails(pkg)}
                       className="px-3.5 py-1.5 border border-blue-100 bg-blue-50 text-blue-600 text-xs font-bold rounded-lg hover:bg-blue-600 hover:text-white transition-all cursor-pointer"
                     >
-                      Découvrir
+                      {t('lbl_decouvrir')}
                     </button>
                   </div>
                 </div>
@@ -593,13 +593,13 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-12 gap-8 items-center">
           <div className="md:col-span-8 space-y-4 text-left">
             <span className="inline-flex items-center gap-1.5 bg-blue-900 border border-blue-800 text-blue-400 font-bold text-xs px-3.5 py-1 rounded-full w-fit">
-              <Sparkles className="w-3.5 h-3.5" /> CRÉATION UNIQUE
+              <Sparkles className="w-3.5 h-3.5" /> {t('lbl_creation_unique')}
             </span>
             <h2 className="font-heading text-3xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
-              Envie d'un voyage 100% sur-mesure ?
+              {t('sec_custom_teaser_title')}
             </h2>
             <p className="text-slate-400 max-w-xl text-base leading-relaxed">
-              De la lune de miel romantique aux circuits d'aventure dans les contrées les plus sauvages, concevez un itinéraire d'exception entièrement personnalisé avec notre configurateur interactif.
+              {t('sec_custom_teaser_desc')}
             </p>
           </div>
           <div className="md:col-span-4 flex justify-start md:justify-end">
@@ -607,7 +607,7 @@ export default function LandingPage() {
               href="/sur-mesure" 
               className="px-7 py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-lg shadow-blue-600/10 transition-all flex items-center gap-2 transform hover:-translate-y-0.5 cursor-pointer text-sm"
             >
-              Lancer le Questionnaire <ArrowRight className="w-4.5 h-4.5" />
+              {t('btn_launch_planner')} <ArrowRight className="w-4.5 h-4.5" />
             </Link>
           </div>
         </div>
@@ -617,12 +617,12 @@ export default function LandingPage() {
       <section className="max-w-7xl mx-auto px-6 py-20 lg:py-28 w-full">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
           <div className="flex flex-col gap-3">
-            <span className="text-xs font-extrabold text-blue-600 uppercase tracking-widest">Pèlerinages Sacrés</span>
-            <h2 className="font-heading text-3xl sm:text-4xl font-extrabold text-slate-950">Omra & Hadj Spirituel</h2>
+            <span className="text-xs font-extrabold text-blue-600 uppercase tracking-widest">{t('lbl_sacred_pilgrim')}</span>
+            <h2 className="font-heading text-3xl sm:text-4xl font-extrabold text-slate-950">{t('lbl_omra_title')}</h2>
             <div className="w-20 h-1.5 bg-blue-600 rounded-full"></div>
           </div>
           <Link href="/omra" className="text-blue-600 font-bold flex items-center gap-1 hover:text-blue-700 group text-sm">
-            Voir les offres Omra <ArrowRight className="w-4.5 h-4.5 group-hover:translate-x-1 transition-transform" />
+            {t('lbl_voir_offres_omra')} <ArrowRight className="w-4.5 h-4.5 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
 
@@ -632,7 +632,7 @@ export default function LandingPage() {
           </div>
         ) : omraTeaser.length === 0 ? (
           <div className="text-center py-12 bg-white rounded-xl border border-slate-100 text-slate-500">
-            Aucun package Omra disponible.
+            {t('omra_no_packages')}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -641,11 +641,11 @@ export default function LandingPage() {
                 <div className="relative h-56 w-full overflow-hidden">
                   <img 
                     src={pkg.image_url || 'https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?auto=format&fit=crop&w=800&q=80'} 
-                    alt={pkg.title} 
+                    alt={tText(pkg.title)} 
                     className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500" 
                   />
                   <span className="absolute top-4 right-4 bg-emerald-50 text-emerald-600 text-xs font-extrabold px-3 py-1.5 rounded-md shadow-sm border border-emerald-100">
-                    Omra
+                    {t('nav_omra')}
                   </span>
                 </div>
                 <div className="p-6 flex flex-col flex-1 gap-3">
@@ -653,26 +653,26 @@ export default function LandingPage() {
                     <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4 text-blue-600" /> {pkg.duration}</span>
                     {pkg.hotel_proximity && (
                       <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 rounded border border-emerald-100 flex items-center gap-0.5">
-                        {pkg.hotel_proximity} Haram
+                        {pkg.hotel_proximity} {t('haram_proximity')}
                       </span>
                     )}
                   </div>
                   <h3 className="font-heading text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-1">
-                    {pkg.title}
+                    {tText(pkg.title)}
                   </h3>
                   <p className="text-sm text-slate-600 line-clamp-2 leading-relaxed flex-1">
-                    {pkg.description}
+                    {tText(pkg.description)}
                   </p>
                   <div className="flex items-center justify-between pt-4 border-t border-slate-100 mt-auto">
                     <div>
-                      <span className="text-[10px] font-bold uppercase text-slate-400">À partir de</span>
+                      <span className="text-[10px] font-bold uppercase text-slate-400">{t('lbl_a_partir_de')}</span>
                       <div className="text-lg font-extrabold text-blue-600">{pkg.price_adult} DA</div>
                     </div>
                     <button 
                       onClick={() => openPackageDetails(pkg)}
                       className="px-3.5 py-1.5 border border-blue-100 bg-blue-50 text-blue-600 text-xs font-bold rounded-lg hover:bg-blue-600 hover:text-white transition-all cursor-pointer"
                     >
-                      Découvrir
+                      {t('lbl_decouvrir')}
                     </button>
                   </div>
                 </div>
@@ -703,7 +703,7 @@ export default function LandingPage() {
               className="fixed top-0 right-0 bottom-0 w-full max-w-xl bg-white shadow-2xl z-50 flex flex-col overflow-hidden"
             >
               <div className="p-6 border-b border-slate-100 flex items-center justify-between">
-                <h3 className="font-heading text-xl font-bold text-slate-900 line-clamp-1">{selectedPackage.title}</h3>
+                <h3 className="font-heading text-xl font-bold text-slate-900 line-clamp-1">{tText(selectedPackage.title)}</h3>
                 <button 
                   onClick={() => setDrawerOpen(false)}
                   className="p-1.5 rounded-lg border border-slate-150 hover:bg-slate-100 text-slate-500 cursor-pointer"
@@ -716,39 +716,39 @@ export default function LandingPage() {
                 <div className="relative h-60 w-full rounded-xl overflow-hidden border border-slate-100 shadow-inner bg-slate-100">
                   <img 
                     src={selectedPackage.image_url || 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=800&q=80'} 
-                    alt={selectedPackage.title}
+                    alt={tText(selectedPackage.title)}
                     className="object-cover w-full h-full"
                   />
                 </div>
 
                 <div className="space-y-2">
                   <p className="text-slate-700 leading-relaxed font-semibold text-sm">
-                    {selectedPackage.description}
+                    {tText(selectedPackage.description)}
                   </p>
                   {selectedPackage.type === 'omra' && selectedPackage.hotel_proximity && (
                     <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-emerald-50 text-emerald-700 font-bold text-xs rounded-full border border-emerald-100">
-                      <Hotel className="w-3.5 h-3.5" /> Hôtels situés à {selectedPackage.hotel_proximity} du Haram
+                      <Hotel className="w-3.5 h-3.5" /> {t('drawer_hotel_proximity_prefix')} {selectedPackage.hotel_proximity} {t('haram_proximity')}
                     </span>
                   )}
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 bg-slate-50 p-6 rounded-xl border border-slate-200/50">
                   <div className="space-y-3">
-                    <h4 className="font-extrabold text-xs uppercase tracking-wide text-slate-500">Ce qui est inclus</h4>
+                    <h4 className="font-extrabold text-xs uppercase tracking-wide text-slate-500">{t('drawer_inclusion')}</h4>
                     <ul className="space-y-2 text-xs font-bold text-slate-700">
                       {selectedPackage.included?.map((inc, i) => (
                         <li key={i} className="flex items-start gap-1.5">
-                          <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" /> {inc}
+                          <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" /> {tText(inc)}
                         </li>
                       ))}
                     </ul>
                   </div>
                   <div className="space-y-3">
-                    <h4 className="font-extrabold text-xs uppercase tracking-wide text-slate-500">Non inclus</h4>
+                    <h4 className="font-extrabold text-xs uppercase tracking-wide text-slate-500">{t('drawer_exclusion')}</h4>
                     <ul className="space-y-2 text-xs font-bold text-slate-700">
                       {selectedPackage.excluded?.map((exc, i) => (
                         <li key={i} className="flex items-start gap-1.5">
-                          <X className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" /> {exc}
+                          <X className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" /> {tText(exc)}
                         </li>
                       ))}
                     </ul>
@@ -757,25 +757,25 @@ export default function LandingPage() {
 
                 {selectedPackage.accompaniment && (
                   <div className="space-y-3">
-                    <h4 className="font-heading text-lg font-bold text-slate-900 border-b pb-2 border-slate-100">Accompagnement</h4>
-                    <p className="text-sm text-slate-600 leading-relaxed font-semibold">{selectedPackage.accompaniment}</p>
+                    <h4 className="font-heading text-lg font-bold text-slate-900 border-b pb-2 border-slate-100">{t('omra_accompaniment_title')}</h4>
+                    <p className="text-sm text-slate-600 leading-relaxed font-semibold">{tText(selectedPackage.accompaniment)}</p>
                   </div>
                 )}
 
                 {selectedPackage.itinerary && selectedPackage.itinerary.length > 0 && (
                   <div className="space-y-5">
-                    <h4 className="font-heading text-lg font-bold text-slate-900 border-b pb-2 border-slate-100">Programme de Voyage</h4>
+                    <h4 className="font-heading text-lg font-bold text-slate-900 border-b pb-2 border-slate-100">{t('drawer_itinerary')}</h4>
                     <div className="space-y-0 relative">
                       {selectedPackage.itinerary.map((day, idx) => (
                         <div key={idx} className="itinerary-step flex gap-4 pl-1 relative">
                           <div className="relative w-10 flex flex-col items-center itinerary-line shrink-0">
                             <span className="w-9 h-9 bg-blue-50 text-blue-600 border border-blue-200 rounded-full font-bold text-xs flex items-center justify-center relative z-10 shadow-sm">
-                              J{day.day}
+                              {t('lbl_day_prefix')}{day.day}
                             </span>
                           </div>
                           <div className="pb-6 flex-1 flex flex-col gap-1">
-                            <h5 className="font-bold text-slate-900 text-sm leading-snug">{day.title}</h5>
-                            <p className="text-xs text-slate-500 leading-relaxed font-medium">{day.desc}</p>
+                            <h5 className="font-bold text-slate-900 text-sm leading-snug">{tText(day.title)}</h5>
+                            <p className="text-xs text-slate-500 leading-relaxed font-medium">{tText(day.desc)}</p>
                           </div>
                         </div>
                       ))}
@@ -785,10 +785,10 @@ export default function LandingPage() {
 
                 {selectedPackage.type === 'omra' && selectedPackage.departure_dates && (
                   <div className="space-y-3">
-                    <h4 className="font-heading text-base font-bold text-slate-900">Dates de départs</h4>
+                    <h4 className="font-heading text-base font-bold text-slate-900">{t('preferred_dates_list')}</h4>
                     <div className="flex gap-2.5 flex-wrap">
                       {selectedPackage.departure_dates.map((d, i) => {
-                        const dateStr = new Date(d).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+                        const dateStr = new Date(d).toLocaleDateString(language === 'ar' ? 'ar-DZ' : 'fr-FR', { day: 'numeric', month: 'short' });
                         return (
                           <span key={i} className="px-3.5 py-1.5 bg-blue-50 text-blue-700 font-extrabold text-xs rounded border border-blue-100 shadow-sm">
                             {dateStr}
@@ -800,10 +800,10 @@ export default function LandingPage() {
                 )}
 
                 <div className="p-6 bg-blue-50/50 border border-blue-100 rounded-xl space-y-4">
-                  <h4 className="font-bold text-slate-900 text-sm flex items-center gap-1.5"><Sliders className="w-4 h-4 text-blue-600" /> Calculateur Devis Estimatif</h4>
+                  <h4 className="font-bold text-slate-900 text-sm flex items-center gap-1.5"><Sliders className="w-4 h-4 text-blue-600" /> {t('drawer_calc_title')}</h4>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="flex flex-col gap-1">
-                      <label className="text-xs font-bold text-slate-500 uppercase">Adultes</label>
+                      <label className="text-xs font-bold text-slate-500 uppercase">{t('drawer_adults')}</label>
                       <input 
                         type="number" 
                         value={calcAdults}
@@ -813,7 +813,7 @@ export default function LandingPage() {
                       />
                     </div>
                     <div className="flex flex-col gap-1">
-                      <label className="text-xs font-bold text-slate-500 uppercase">Enfants</label>
+                      <label className="text-xs font-bold text-slate-500 uppercase">{t('drawer_children')}</label>
                       <input 
                         type="number" 
                         value={calcChildren}
@@ -825,15 +825,15 @@ export default function LandingPage() {
                   </div>
                   <div className="flex items-center justify-between pt-4 border-t border-blue-100 mt-2">
                     <div>
-                      <span className="text-[10px] font-bold uppercase text-slate-400">Total Indicatif</span>
-                      <div className="text-2xl font-black text-blue-600">{getCalcTotal().toLocaleString('fr-FR')} DA</div>
+                      <span className="text-[10px] font-bold uppercase text-slate-400">{t('drawer_total')}</span>
+                      <div className="text-2xl font-black text-blue-600">{getCalcTotal().toLocaleString(language === 'ar' ? 'ar-DZ' : 'fr-FR')} DA</div>
                     </div>
                     {!showDrawerBookingForm && (
                       <button 
                         onClick={() => setShowDrawerBookingForm(true)}
                         className="px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-bold shadow-md cursor-pointer"
                       >
-                        Réserver ce séjour
+                        {t('btn_book')}
                       </button>
                     )}
                   </div>
@@ -845,11 +845,11 @@ export default function LandingPage() {
                     animate={{ opacity: 1, height: 'auto' }}
                     className="pt-6 border-t border-slate-100 space-y-4"
                   >
-                    <h4 className="font-heading text-lg font-bold text-slate-900">Coordonnées de Réservation</h4>
+                    <h4 className="font-heading text-lg font-bold text-slate-900">{t('drawer_book_title')}</h4>
                     <form onSubmit={handleDrawerReservation} className="space-y-4">
                       <div className="grid grid-cols-2 gap-4">
                         <div className="flex flex-col gap-1">
-                          <label className="text-xs font-bold text-slate-500">Nom Complet</label>
+                          <label className="text-xs font-bold text-slate-500">{t('drawer_full_name')}</label>
                           <input 
                             type="text" 
                             value={bookName}
@@ -859,7 +859,7 @@ export default function LandingPage() {
                           />
                         </div>
                         <div className="flex flex-col gap-1">
-                          <label className="text-xs font-bold text-slate-500">Adresse e-mail</label>
+                          <label className="text-xs font-bold text-slate-500">{t('drawer_email')}</label>
                           <input 
                             type="email" 
                             value={bookEmail}
@@ -871,7 +871,7 @@ export default function LandingPage() {
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         <div className="flex flex-col gap-1">
-                          <label className="text-xs font-bold text-slate-500">Téléphone</label>
+                          <label className="text-xs font-bold text-slate-500">{t('drawer_phone')}</label>
                           <input 
                             type="tel" 
                             value={bookPhone}
@@ -881,7 +881,7 @@ export default function LandingPage() {
                           />
                         </div>
                         <div className="flex flex-col gap-1">
-                          <label className="text-xs font-bold text-slate-500">Départ Souhaité</label>
+                          <label className="text-xs font-bold text-slate-500">{t('drawer_preferred_date')}</label>
                           <input 
                             type="date" 
                             value={bookDate}
@@ -897,13 +897,13 @@ export default function LandingPage() {
                           onClick={() => setShowDrawerBookingForm(false)}
                           className="flex-1 py-2.5 border border-slate-200 rounded-lg text-sm font-bold text-slate-600 hover:bg-slate-50 cursor-pointer"
                         >
-                          Annuler
+                          {t('btn_cancel')}
                         </button>
                         <button 
                           type="submit" 
                           className="flex-[2] py-2.5 bg-blue-600 text-white rounded-lg text-sm font-bold hover:bg-blue-700 shadow-md cursor-pointer"
                         >
-                          Confirmer la Demande
+                          {t('btn_confirm_booking')}
                         </button>
                       </div>
                     </form>

@@ -2,8 +2,11 @@
 
 import Link from 'next/link';
 import { Compass, MapPin, Send, Sliders } from 'lucide-react';
+import { useLanguage } from '@/lib/LanguageContext';
 
 export default function Footer() {
+  const { t } = useLanguage();
+
   return (
     <footer className="bg-slate-900 text-slate-400 pt-16 pb-8 border-t border-slate-800">
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-12 gap-10 mb-12">
@@ -12,7 +15,7 @@ export default function Footer() {
             <Compass className="w-6 h-6 text-blue-500" /> Conquête<span className="text-blue-500">.</span>
           </span>
           <p className="text-sm leading-relaxed">
-            Votre agence de voyages d'exception pour des circuits uniques à travers le globe et des séjours de pèlerinages encadrés avec le plus grand soin spirituel.
+            {t('footer_tagline')}
           </p>
           <div className="flex gap-4 mt-2 text-slate-500">
             <a href="#" className="hover:text-white transition-colors" aria-label="Facebook">
@@ -38,33 +41,33 @@ export default function Footer() {
           </div>
         </div>
         <div className="md:col-span-3 flex flex-col gap-4">
-          <h4 className="text-white font-extrabold text-sm uppercase tracking-wider">Prestations</h4>
+          <h4 className="text-white font-extrabold text-sm uppercase tracking-wider">{t('footer_prestations')}</h4>
           <ul className="space-y-2 text-sm font-semibold">
-            <li><Link href="/international" className="hover:text-white transition-colors">Circuits Internationaux</Link></li>
-            <li><Link href="/omra" className="hover:text-white transition-colors">Pèlerinages Omra / Hadj</Link></li>
-            <li><Link href="/sur-mesure" className="hover:text-white transition-colors">Voyages Sur-Mesure</Link></li>
+            <li><Link href="/international" className="hover:text-white transition-colors">{t('footer_international_circuits')}</Link></li>
+            <li><Link href="/omra" className="hover:text-white transition-colors">{t('footer_omra_hadj')}</Link></li>
+            <li><Link href="/sur-mesure" className="hover:text-white transition-colors">{t('footer_tailormade')}</Link></li>
           </ul>
         </div>
         <div className="md:col-span-2 flex flex-col gap-4">
-          <h4 className="text-white font-extrabold text-sm uppercase tracking-wider">Liens Utiles</h4>
+          <h4 className="text-white font-extrabold text-sm uppercase tracking-wider">{t('footer_links')}</h4>
           <ul className="space-y-2 text-sm font-semibold">
-            <li><a href="#" className="hover:text-white transition-colors">Politique de cookies</a></li>
-            <li><a href="#" className="hover:text-white transition-colors">Mentions Légales</a></li>
-            <li><a href="#" className="hover:text-white transition-colors">Assurances de voyages</a></li>
+            <li><a href="#" className="hover:text-white transition-colors">{t('footer_cookies')}</a></li>
+            <li><a href="#" className="hover:text-white transition-colors">{t('footer_terms')}</a></li>
+            <li><a href="#" className="hover:text-white transition-colors">{t('footer_insurance')}</a></li>
           </ul>
         </div>
         <div className="md:col-span-3 flex flex-col gap-4">
-          <h4 className="text-white font-extrabold text-sm uppercase tracking-wider">Contact & Agence</h4>
-          <ul className="space-y-2 text-sm">
-            <li className="flex items-center gap-2"><MapPin className="w-4 h-4 text-blue-500 shrink-0" /> 45 Avenue de la République, Paris</li>
+          <h4 className="text-white font-extrabold text-sm uppercase tracking-wider">{t('footer_contact_title')}</h4>
+          <ul className="space-y-2 text-sm font-semibold">
+            <li className="flex items-center gap-2"><MapPin className="w-4 h-4 text-blue-500 shrink-0" /> {t('footer_address')}</li>
             <li className="flex items-center gap-2"><Send className="w-4 h-4 text-blue-500 shrink-0" /> contact@conquete-voyages.fr</li>
           </ul>
         </div>
       </div>
       <div className="max-w-7xl mx-auto px-6 pt-8 border-t border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs font-semibold">
-        <p>&copy; 2026 Conquête Voyages. Tous droits réservés.</p>
+        <p>&copy; 2026 Conquête Voyages. {t('footer_rights')}</p>
         <Link href="/admin" className="text-blue-500 hover:text-blue-400 font-bold flex items-center gap-1.5">
-          <Sliders className="w-3.5 h-3.5" /> Accéder au Portail Agent
+          <Sliders className="w-3.5 h-3.5" /> {t('footer_agent_portal')}
         </Link>
       </div>
     </footer>

@@ -8,8 +8,10 @@ import {
 import { supabase } from '@/lib/supabase';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { useLanguage } from '@/lib/LanguageContext';
 
 export default function SurMesurePage() {
+  const { t, language } = useLanguage();
   const [step, setStep] = useState(1);
 
   // Form Fields
@@ -36,11 +38,11 @@ export default function SurMesurePage() {
 
   const handleStepNext = () => {
     if (step === 1 && !smDest.trim()) {
-      addToast('Veuillez renseigner votre destination.', 'error');
+      addToast(t('toast_error_sm_dest'), 'error');
       return;
     }
     if (step === 2 && (!smPassengers || smPassengers < 1)) {
-      addToast('Le nombre de voyageurs doit être supérieur à 0.', 'error');
+      addToast(t('toast_error_sm_passengers'), 'error');
       return;
     }
     setStep(prev => prev + 1);
@@ -49,7 +51,7 @@ export default function SurMesurePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!smName || !smEmail || !smPhone) {
-      addToast('Veuillez remplir vos coordonnées de contact.', 'error');
+      addToast(t('toast_error_sm_contact'), 'error');
       return;
     }
 
@@ -72,7 +74,7 @@ export default function SurMesurePage() {
         details
       }]);
       if (error) throw error;
-      addToast('Votre demande de création sur-mesure a été soumise avec succès !', 'success');
+      addToast(t('toast_success_sm'), 'success');
       // Reset
       setStep(1);
       setSmDest('');
@@ -82,7 +84,7 @@ export default function SurMesurePage() {
       setSmPhone('');
     } catch (err) {
       console.error(err);
-      addToast('Erreur lors de l\'enregistrement.', 'error');
+      addToast(t('toast_error_save'), 'error');
     }
   };
 
@@ -93,10 +95,10 @@ export default function SurMesurePage() {
       {/* Banner */}
       <section className="bg-slate-900 text-white py-16 w-full border-b border-slate-800">
         <div className="max-w-7xl mx-auto px-6">
-          <span className="text-xs font-bold text-blue-500 uppercase tracking-widest block mb-2">Concepteur de séjours</span>
-          <h1 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-black text-white">Voyages Sur-Mesure</h1>
+          <span className="text-xs font-bold text-blue-500 uppercase tracking-widest block mb-2">{t('sm_banner_badge')}</span>
+          <h1 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-black text-white">{t('sm_banner_title')}</h1>
           <p className="text-slate-400 text-sm sm:text-base mt-2 max-w-xl">
-            Prenez 2 minutes pour exprimer vos envies de voyage, et laissez notre équipe d'experts concevoir votre itinéraire sur-mesure.
+            {t('sm_banner_desc')}
           </p>
         </div>
       </section>
@@ -106,14 +108,14 @@ export default function SurMesurePage() {
         <div className="max-w-2xl w-full bg-white rounded-2xl shadow-xl border border-slate-200/50 overflow-hidden">
           <div className="bg-slate-950 text-white p-8 text-center flex flex-col gap-2">
             <h3 className="font-heading text-lg font-bold">
-              {step === 1 && "Étape 1 : Votre Destination"}
-              {step === 2 && "Étape 2 : Profil des Voyageurs"}
-              {step === 3 && "Étape 3 : Budget & Coordonnées"}
+              {step === 1 && t('sm_step_1_title')}
+              {step === 2 && t('sm_step_2_title')}
+              {step === 3 && t('sm_step_3_title')}
             </h3>
             <p className="text-xs text-slate-400 font-medium">
-              {step === 1 && "Définissez votre destination de rêve et la durée souhaitée."}
-              {step === 2 && "Qui participe à ce projet de voyage exclusif ?"}
-              {step === 3 && "Indiquez votre budget estimé et vos coordonnées."}
+              {step === 1 && t('sm_step_1_desc')}
+              {step === 2 && t('sm_step_2_desc')}
+              {step === 3 && t('sm_step_3_desc')}
             </p>
           </div>
 
@@ -137,10 +139,10 @@ export default function SurMesurePage() {
                     className="space-y-6"
                   >
                     <div className="flex flex-col gap-2">
-                      <label className="text-sm font-bold text-slate-700">Destination(s) souhaitée(s)</label>
+                      <label className="text-sm font-bold text-slate-700">{t('sm_lbl_destination')}</label>
                       <input 
                         type="text" 
-                        placeholder="Ex: Safari en Tanzanie, Circuit Ouest Américain, Voyage de noces à Bora Bora"
+                        placeholder={t('sm_placeholder_destination')}
                         value={smDest}
                         onChange={e => setSmDest(e.target.value)}
                         className="px-4 py-3 rounded-lg border border-slate-200 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 bg-white font-medium"
@@ -148,16 +150,15 @@ export default function SurMesurePage() {
                       />
                     </div>
                     <div className="flex flex-col gap-2">
-                      <label className="text-sm font-bold text-slate-700">Durée approximative du séjour</label>
+                      <label className="text-sm font-bold text-slate-700">{t('sm_lbl_duration')}</label>
                       <select 
                         value={smDuration}
                         onChange={e => setSmDuration(e.target.value)}
-                        className="px-4 py-3 rounded-lg border border-slate-200 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 bg-white font-semibold text-slate-700"
+                        className="px-4 py-3 rounded-lg border border-slate-200 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 bg-white font-semibold text-slate-700 bg-no-repeat"
                       >
-                        <option value="1 week">Moins d'une semaine</option>
-                        <option value="10-12 days">10 à 12 jours</option>
-                        <option value="2 weeks">2 semaines</option>
-                        <option value="3 weeks+">3 semaines et plus</option>
+                        <option value="1 week">{t('sm_duration_short')}</option>
+                        <option value="10-12 days">{t('sm_duration_medium')}</option>
+                        <option value="2 weeks">{t('sm_duration_long')}</option>
                       </select>
                     </div>
                   </motion.div>
@@ -171,13 +172,13 @@ export default function SurMesurePage() {
                     exit={{ opacity: 0, x: -15 }}
                     className="space-y-6"
                   >
-                    <label className="text-sm font-bold text-slate-700 block">Profil des voyageurs</label>
+                    <label className="text-sm font-bold text-slate-700 block">{t('sm_lbl_profile')}</label>
                     <div className="grid grid-cols-2 gap-4">
                       {[
-                        { id: 'couple', title: 'En Couple', desc: 'Séjour romantique', icon: Heart },
-                        { id: 'solo', title: 'Solo', desc: 'Aventure personnelle', icon: User },
-                        { id: 'family', title: 'En Famille', desc: 'Moments partagés', icon: Users },
-                        { id: 'friends', title: 'Entre Amis', desc: 'Découvertes à plusieurs', icon: Compass }
+                        { id: 'couple', title: t('sm_profile_couple'), desc: language === 'ar' ? 'رحلة رومانسية' : 'Séjour romantique', icon: Heart },
+                        { id: 'solo', title: t('sm_profile_solo'), desc: language === 'ar' ? 'مغامرة شخصية' : 'Aventure personnelle', icon: User },
+                        { id: 'family', title: t('sm_profile_family'), desc: language === 'ar' ? 'لحظات مشتركة' : 'Moments partagés', icon: Users },
+                        { id: 'friends', title: t('sm_profile_friends'), desc: language === 'ar' ? 'اكتشافات جماعية' : 'Découvertes à plusieurs', icon: Compass }
                       ].map(item => {
                         const Icon = item.icon;
                         return (
@@ -198,7 +199,7 @@ export default function SurMesurePage() {
                       })}
                     </div>
                     <div className="flex flex-col gap-2">
-                      <label className="text-sm font-bold text-slate-700">Nombre de participants</label>
+                      <label className="text-sm font-bold text-slate-700">{t('sm_lbl_passengers')}</label>
                       <input 
                         type="number" 
                         value={smPassengers}
@@ -220,23 +221,23 @@ export default function SurMesurePage() {
                   >
                     <div className="grid grid-cols-2 gap-4">
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-bold text-slate-600">Budget estimé / pers.</label>
+                        <label className="text-xs font-bold text-slate-600">{t('sm_lbl_budget')}</label>
                         <select 
                           value={smBudget}
                           onChange={e => setSmBudget(e.target.value)}
                           className="px-3 py-2.5 rounded-lg border border-slate-200 bg-white text-sm font-semibold"
                         >
-                          <option value="Eco">Éco (&lt; 1500 DA)</option>
-                          <option value="Confort">Confort (1500 DA - 3000 DA)</option>
-                          <option value="Premium">Premium (3000 DA - 5000 DA)</option>
-                          <option value="Luxe">Luxe (&gt; 5000 DA)</option>
+                          <option value="Eco">{language === 'ar' ? 'اقتصادي (< 1500 دج)' : 'Éco (< 1500 DA)'}</option>
+                          <option value="Confort">{language === 'ar' ? 'مريح (1500 دج - 3000 دج)' : 'Confort (1500 DA - 3000 DA)'}</option>
+                          <option value="Premium">{language === 'ar' ? 'ممتاز (3000 دج - 5000 دج)' : 'Premium (3000 DA - 5000 DA)'}</option>
+                          <option value="Luxe">{language === 'ar' ? 'فاخر (> 5000 دج)' : 'Luxe (> 5000 DA)'}</option>
                         </select>
                       </div>
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-bold text-slate-600">Nom Complet</label>
+                        <label className="text-xs font-bold text-slate-600">{t('sm_lbl_name')}</label>
                         <input 
                           type="text" 
-                          placeholder="Nom Prénom"
+                          placeholder={language === 'ar' ? 'الاسم واللقب' : 'Nom Prénom'}
                           value={smName}
                           onChange={e => setSmName(e.target.value)}
                           className="px-3 py-2.5 rounded-lg border border-slate-200 bg-white text-sm font-semibold"
@@ -247,7 +248,7 @@ export default function SurMesurePage() {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-bold text-slate-600">E-mail</label>
+                        <label className="text-xs font-bold text-slate-600">{t('sm_lbl_email')}</label>
                         <input 
                           type="email" 
                           placeholder="email@example.com"
@@ -258,10 +259,10 @@ export default function SurMesurePage() {
                         />
                       </div>
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-bold text-slate-600">Téléphone</label>
+                        <label className="text-xs font-bold text-slate-600">{t('sm_lbl_phone')}</label>
                         <input 
                           type="tel" 
-                          placeholder="+33 6..."
+                          placeholder={language === 'ar' ? 'رقم الهاتف' : 'Téléphone'}
                           value={smPhone}
                           onChange={e => setSmPhone(e.target.value)}
                           className="px-3 py-2.5 rounded-lg border border-slate-200 bg-white text-sm font-semibold"
@@ -271,13 +272,13 @@ export default function SurMesurePage() {
                     </div>
 
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-bold text-slate-600">Projet, activités & notes particulières</label>
+                      <label className="text-xs font-bold text-slate-600">{t('sm_lbl_notes')}</label>
                       <textarea 
                         rows={3} 
-                        placeholder="Ex: Escapade en bungalows sur pilotis, activités de plongée, chauffeur privé..."
+                        placeholder={t('sm_placeholder_notes')}
                         value={smNotes}
                         onChange={e => setSmNotes(e.target.value)}
-                        className="px-3 py-2.5 rounded-lg border border-slate-200 bg-white text-sm font-semibold"
+                        className="px-3 py-2.5 rounded-lg border border-slate-200 bg-white text-sm font-semibold hover:border-slate-350 outline-none"
                       />
                     </div>
                   </motion.div>
@@ -291,7 +292,7 @@ export default function SurMesurePage() {
                 onClick={() => step > 1 && setStep(step - 1)}
                 className={`px-4 py-2 rounded-lg font-bold text-slate-600 border border-slate-200 hover:bg-slate-50 flex items-center gap-1.5 text-sm cursor-pointer ${step === 1 ? 'invisible' : ''}`}
               >
-                <ArrowLeft className="w-4 h-4" /> Précédent
+                <ArrowLeft className="w-4 h-4" /> {t('btn_back')}
               </button>
               {step < 3 ? (
                 <button 
@@ -299,14 +300,14 @@ export default function SurMesurePage() {
                   onClick={handleStepNext}
                   className="px-5 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 flex items-center gap-1.5 text-sm cursor-pointer"
                 >
-                  Suivant <ArrowRight className="w-4.5 h-4.5" />
+                  {t('sm_btn_next')} <ArrowRight className="w-4.5 h-4.5" />
                 </button>
               ) : (
                 <button 
                   type="submit"
                   className="px-6 py-2.5 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 flex items-center gap-1.5 text-sm cursor-pointer shadow-md"
                 >
-                  Envoyer ma Demande <Send className="w-4 h-4" />
+                  {t('sm_btn_submit')} <Send className="w-4 h-4" />
                 </button>
               )}
             </div>

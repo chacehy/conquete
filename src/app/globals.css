@@ -1,9 +1,9 @@
 @import "tailwindcss";
 
 @theme inline {
-  --font-heading: var(--font-outfit), sans-serif;
-  --font-sans: var(--font-inter), sans-serif;
-  --font-inter: var(--font-inter), sans-serif;
+  --font-heading: var(--font-playfair), serif;
+  --font-sans: var(--font-plus-jakarta), sans-serif;
+  --font-inter: var(--font-plus-jakarta), sans-serif;
 }
 
 :root {
@@ -16,10 +16,21 @@
 }
 
 body {
-  font-family: var(--font-inter), sans-serif;
+  font-family: var(--font-plus-jakarta), sans-serif;
   background-color: #F8FAFC;
   color: #0F172A;
   min-height: 100vh;
+}
+
+/* RTL Styles for Arabic Font Pairings */
+html[dir="rtl"] {
+  --font-heading: var(--font-tajawal), sans-serif;
+  --font-sans: var(--font-cairo), sans-serif;
+  --font-inter: var(--font-cairo), sans-serif;
+}
+
+html[dir="rtl"] body {
+  font-family: var(--font-cairo), sans-serif;
 }
 
 /* Custom Scrollbar */
