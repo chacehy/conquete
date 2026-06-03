@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -13,9 +13,16 @@ import { Package } from '@/types';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { useLanguage } from '@/lib/LanguageContext';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 export default function LandingPage() {
   const { t, tText, language } = useLanguage();
+  const widgetRef = useRef<HTMLDivElement>(null);
   // Database States
   const [packages, setPackages] = useState<Package[]>([]);
   const [loading, setLoading] = useState(true);
@@ -80,6 +87,32 @@ export default function LandingPage() {
     setHotelCheckIn(nextWeekStr);
     setHotelCheckOut(twoWeeksStr);
     setBookDate(nextWeekStr);
+  }, []);
+
+  useEffect(() => {
+    if (!widgetRef.current) return;
+
+    const ctx = gsap.context(() => {
+      const isMobile = window.innerWidth < 768;
+      
+      gsap.fromTo(widgetRef.current,
+        {
+          y: isMobile ? 120 : 60,
+        },
+        {
+          y: isMobile ? -60 : -100,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: widgetRef.current,
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: 1.2,
+          }
+        }
+      );
+    });
+
+    return () => ctx.revert();
   }, []);
 
   const addToast = (message: string, type: 'success' | 'error' = 'success') => {
@@ -299,7 +332,7 @@ export default function LandingPage() {
       </section>
 
       {/* Booking Search Widget */}
-      <section className="max-w-7xl mx-auto px-6 w-full -mt-24 lg:-mt-28 z-30 relative">
+      <section ref={widgetRef} className="max-w-7xl mx-auto px-6 w-full -mt-24 lg:-mt-28 z-30 relative">
         <div className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-slate-200/60 overflow-hidden">
           <div className="grid grid-cols-2 md:grid-cols-4 bg-slate-50 border-b border-slate-200/80">
             <button 
