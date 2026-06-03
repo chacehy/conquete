@@ -83,10 +83,10 @@ export default function Header({ transparent = false }: HeaderProps) {
           {/* Mobile Menu Toggle Button */}
           <button
             onClick={() => setMobileMenuOpen(true)}
-            className={`md:hidden p-2 border rounded-lg transition-all cursor-pointer shrink-0 ${
+            className={`md:hidden p-2 rounded-lg transition-all cursor-pointer shrink-0 ${
               transparent
-                ? 'border-white/20 text-white hover:border-white/50'
-                : 'border-slate-200 text-slate-800 hover:border-blue-500 hover:bg-slate-50'
+                ? 'border border-white/20 text-white hover:border-white/50'
+                : 'border border-transparent bg-transparent text-slate-800 hover:text-blue-600'
             }`}
           >
             <Menu className="w-5 h-5" />

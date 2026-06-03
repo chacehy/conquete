@@ -281,27 +281,23 @@ export default function InternationalPage() {
 
                 <div className="p-6 bg-blue-50/50 border border-blue-100 rounded-xl space-y-4">
                   <h4 className="font-bold text-slate-900 text-sm flex items-center gap-1.5"><Sliders className="w-4 h-4 text-blue-600" /> {t('drawer_calc_title')}</h4>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="flex flex-col gap-1">
-                      <label className="text-xs font-bold text-slate-500 uppercase">{t('drawer_adults')}</label>
-                      <input 
-                        type="number" 
-                        value={calcAdults}
-                        onChange={e => setCalcAdults(Math.max(1, parseInt(e.target.value) || 1))}
-                        min={1}
-                        className="px-3 py-2 border border-slate-200 rounded-lg outline-none focus:border-blue-500 bg-white font-bold" 
-                      />
-                    </div>
-                    <div className="flex flex-col gap-1">
-                      <label className="text-xs font-bold text-slate-500 uppercase">{t('drawer_children')}</label>
-                      <input 
-                        type="number" 
-                        value={calcChildren}
-                        onChange={e => setCalcChildren(Math.max(0, parseInt(e.target.value) || 0))}
-                        min={0}
-                        className="px-3 py-2 border border-slate-200 rounded-lg outline-none focus:border-blue-500 bg-white font-bold" 
-                      />
-                    </div>
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
+                    <label className="text-xs font-bold text-slate-500 uppercase self-end">{t('drawer_adults')}</label>
+                    <label className="text-xs font-bold text-slate-500 uppercase self-end">{t('drawer_children')}</label>
+                    <input 
+                      type="number" 
+                      value={calcAdults}
+                      onChange={e => setCalcAdults(Math.max(1, parseInt(e.target.value) || 1))}
+                      min={1}
+                      className="px-3 py-2 border border-slate-200 rounded-lg outline-none focus:border-blue-500 bg-white font-bold w-full" 
+                    />
+                    <input 
+                      type="number" 
+                      value={calcChildren}
+                      onChange={e => setCalcChildren(Math.max(0, parseInt(e.target.value) || 0))}
+                      min={0}
+                      className="px-3 py-2 border border-slate-200 rounded-lg outline-none focus:border-blue-500 bg-white font-bold w-full" 
+                    />
                   </div>
                   <div className="flex items-center justify-between pt-4 border-t border-blue-100 mt-2">
                     <div>
