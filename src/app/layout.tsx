@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Plus_Jakarta_Sans, Cairo, Tajawal } from "next/font/google";
+import { Outfit, Plus_Jakarta_Sans, Cairo, Tajawal } from "next/font/google";
 import "./globals.css";
 import { LanguageProvider } from "@/lib/LanguageContext";
 
-const playfair = Playfair_Display({
-  variable: "--font-playfair",
+const outfit = Outfit({
+  variable: "--font-outfit",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800", "900"],
+  weight: ["300", "400", "500", "600", "700", "800", "900"],
 });
 
 const plusJakarta = Plus_Jakarta_Sans({
@@ -41,7 +41,7 @@ export default function RootLayout({
   return (
     <html
       lang="fr"
-      className={`${playfair.variable} ${plusJakarta.variable} ${cairo.variable} ${tajawal.variable} h-full antialiased scroll-smooth`}
+      className={`${outfit.variable} ${plusJakarta.variable} ${cairo.variable} ${tajawal.variable} h-full antialiased scroll-smooth`}
     >
       <body className="min-h-full flex flex-col font-sans bg-slate-50 text-slate-900 selection:bg-blue-600 selection:text-white">
         <LanguageProvider>
