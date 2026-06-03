@@ -96,7 +96,7 @@ export default function Header({ transparent = false }: HeaderProps) {
 
       {/* Mobile Menu Drawer Overlay */}
       {mobileMenuOpen && (
-        <div className="md:hidden fixed inset-0 z-50 bg-slate-950/98 backdrop-blur-xl flex flex-col p-6 transition-all duration-300">
+        <div className="md:hidden fixed inset-0 z-50 bg-[#0A1128] bg-gradient-to-b from-[#0A1128] to-[#040817] flex flex-col p-6 transition-all duration-300">
           <div className="flex items-center justify-between mb-8">
             <Link 
               href="/" 
