@@ -1,8 +1,9 @@
 'use client';
 
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Compass, Sliders, Globe } from 'lucide-react';
+import { Compass, Sliders, Globe, Menu, X } from 'lucide-react';
 import { useLanguage } from '@/lib/LanguageContext';
 
 interface HeaderProps {
@@ -12,6 +13,7 @@ interface HeaderProps {
 export default function Header({ transparent = false }: HeaderProps) {
   const pathname = usePathname();
   const { language, toggleLanguage, t } = useLanguage();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const isActive = (path: string) => {
     if (pathname === path) {
@@ -26,11 +28,11 @@ export default function Header({ transparent = false }: HeaderProps) {
         ? "absolute top-0 left-0 z-40 w-full bg-transparent border-b border-white/10 transition-all duration-300"
         : "sticky top-0 z-40 w-full bg-white/85 backdrop-blur-md border-b border-slate-200/80 transition-all duration-300"
     }>
-      <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
         <Link href="/" className={`font-heading text-2xl font-black tracking-tight flex items-center gap-2 transition-colors ${
           transparent ? 'text-blue-400' : 'text-blue-600'
         }`}>
-          <Compass className="w-7 h-7" /> Conquête<span className={transparent ? 'text-white' : 'text-slate-900'}>.</span>
+          <Compass className="w-7 h-7 shrink-0" /> <span className="truncate">Conquête</span><span className={transparent ? 'text-white' : 'text-slate-900'}>.</span>
         </Link>
 
         <nav className="hidden md:flex items-center gap-8 font-semibold text-sm">
@@ -45,11 +47,11 @@ export default function Header({ transparent = false }: HeaderProps) {
           </Link>
         </nav>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           {/* Language Toggle */}
           <button 
             onClick={toggleLanguage}
-            className={`px-3 py-2 border rounded-lg text-xs font-black transition-all cursor-pointer flex items-center gap-1.5 ${
+            className={`px-2.5 py-1.5 sm:px-3 sm:py-2 border rounded-lg text-xs font-black transition-all cursor-pointer flex items-center gap-1.5 shrink-0 ${
               transparent 
                 ? 'border-white/20 text-white hover:border-white/50 hover:bg-white/5' 
                 : 'border-slate-200 text-slate-800 hover:border-blue-500 hover:bg-slate-50'
@@ -70,14 +72,89 @@ export default function Header({ transparent = false }: HeaderProps) {
           >
             <Sliders className="w-4 h-4 text-blue-400" /> {t('nav_agent')}
           </Link>
+
           <Link 
             href="/sur-mesure" 
-            className="px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-semibold shadow-md shadow-blue-500/20 transition-all whitespace-nowrap"
+            className="hidden sm:inline-flex px-4 sm:px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-semibold shadow-md shadow-blue-500/20 transition-all whitespace-nowrap shrink-0"
           >
             {t('nav_quote')}
           </Link>
+
+          {/* Mobile Menu Toggle Button */}
+          <button
+            onClick={() => setMobileMenuOpen(true)}
+            className={`md:hidden p-2 border rounded-lg transition-all cursor-pointer shrink-0 ${
+              transparent
+                ? 'border-white/20 text-white hover:border-white/50'
+                : 'border-slate-200 text-slate-800 hover:border-blue-500 hover:bg-slate-50'
+            }`}
+          >
+            <Menu className="w-5 h-5" />
+          </button>
         </div>
       </div>
+
+      {/* Mobile Menu Drawer Overlay */}
+      {mobileMenuOpen && (
+        <div className="md:hidden fixed inset-0 z-50 bg-slate-950/98 backdrop-blur-xl flex flex-col p-6 transition-all duration-300">
+          <div className="flex items-center justify-between mb-8">
+            <Link 
+              href="/" 
+              onClick={() => setMobileMenuOpen(false)} 
+              className="font-heading text-2xl font-black tracking-tight flex items-center gap-2 text-blue-500"
+            >
+              <Compass className="w-7 h-7" /> Conquête<span className="text-white">.</span>
+            </Link>
+            <button 
+              onClick={() => setMobileMenuOpen(false)}
+              className="p-2 text-slate-400 hover:text-white rounded-lg border border-slate-850 cursor-pointer"
+            >
+              <X className="w-6 h-6" />
+            </button>
+          </div>
+
+          <nav className="flex flex-col gap-4 text-lg font-bold text-slate-200">
+            <Link 
+              href="/international" 
+              onClick={() => setMobileMenuOpen(false)} 
+              className={`hover:text-blue-400 transition-colors py-3 border-b border-slate-800/60 ${pathname === '/international' ? 'text-blue-400' : ''}`}
+            >
+              {t('nav_international')}
+            </Link>
+            <Link 
+              href="/omra" 
+              onClick={() => setMobileMenuOpen(false)} 
+              className={`hover:text-blue-400 transition-colors py-3 border-b border-slate-800/60 ${pathname === '/omra' ? 'text-blue-400' : ''}`}
+            >
+              {t('nav_omra')}
+            </Link>
+            <Link 
+              href="/sur-mesure" 
+              onClick={() => setMobileMenuOpen(false)} 
+              className={`hover:text-blue-400 transition-colors py-3 border-b border-slate-800/60 ${pathname === '/sur-mesure' ? 'text-blue-400' : ''}`}
+            >
+              {t('nav_tailormade')}
+            </Link>
+            <Link 
+              href="/admin" 
+              onClick={() => setMobileMenuOpen(false)} 
+              className={`hover:text-blue-400 transition-colors py-3 border-b border-slate-800/60 flex items-center gap-2 ${pathname === '/admin' ? 'text-blue-400' : ''}`}
+            >
+              <Sliders className="w-5 h-5 text-blue-400" /> {t('nav_agent')}
+            </Link>
+          </nav>
+
+          <div className="mt-auto pt-6 flex flex-col gap-4">
+            <Link 
+              href="/sur-mesure" 
+              onClick={() => setMobileMenuOpen(false)}
+              className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-center font-extrabold shadow-lg shadow-blue-500/20 transition-all"
+            >
+              {t('nav_quote')}
+            </Link>
+          </div>
+        </div>
+      )}
     </header>
   );
 }
