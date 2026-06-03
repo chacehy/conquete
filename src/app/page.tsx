@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -13,9 +13,16 @@ import { Package } from '@/types';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { useLanguage } from '@/lib/LanguageContext';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 export default function LandingPage() {
   const { t, tText, language } = useLanguage();
+  const widgetRef = useRef<HTMLDivElement>(null);
   // Database States
   const [packages, setPackages] = useState<Package[]>([]);
   const [loading, setLoading] = useState(true);
@@ -80,6 +87,32 @@ export default function LandingPage() {
     setHotelCheckIn(nextWeekStr);
     setHotelCheckOut(twoWeeksStr);
     setBookDate(nextWeekStr);
+  }, []);
+
+  useEffect(() => {
+    if (!widgetRef.current) return;
+
+    const mm = gsap.matchMedia();
+
+    mm.add("(max-width: 767px)", () => {
+      gsap.fromTo(widgetRef.current,
+        {
+          y: 120,
+        },
+        {
+          y: -60,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: widgetRef.current,
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: 1.2,
+          }
+        }
+      );
+    });
+
+    return () => mm.revert();
   }, []);
 
   const addToast = (message: string, type: 'success' | 'error' = 'success') => {
@@ -299,7 +332,7 @@ export default function LandingPage() {
       </section>
 
       {/* Booking Search Widget */}
-      <section className="max-w-7xl mx-auto px-6 w-full -mt-24 lg:-mt-28 z-30 relative">
+      <section ref={widgetRef} className="max-w-7xl mx-auto px-6 w-full -mt-24 lg:-mt-28 z-30 relative">
         <div className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-slate-200/60 overflow-hidden">
           <div className="grid grid-cols-2 md:grid-cols-4 bg-slate-50 border-b border-slate-200/80">
             <button 
@@ -790,27 +823,23 @@ export default function LandingPage() {
 
                 <div className="p-6 bg-blue-50/50 border border-blue-100 rounded-xl space-y-4">
                   <h4 className="font-bold text-slate-900 text-sm flex items-center gap-1.5"><Sliders className="w-4 h-4 text-blue-600" /> {t('drawer_calc_title')}</h4>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="flex flex-col gap-1">
-                      <label className="text-xs font-bold text-slate-500 uppercase">{t('drawer_adults')}</label>
-                      <input 
-                        type="number" 
-                        value={calcAdults}
-                        onChange={e => setCalcAdults(Math.max(1, parseInt(e.target.value) || 1))}
-                        min={1}
-                        className="px-3 py-2 border border-slate-200 rounded-lg outline-none focus:border-blue-500 bg-white font-bold" 
-                      />
-                    </div>
-                    <div className="flex flex-col gap-1">
-                      <label className="text-xs font-bold text-slate-500 uppercase">{t('drawer_children')}</label>
-                      <input 
-                        type="number" 
-                        value={calcChildren}
-                        onChange={e => setCalcChildren(Math.max(0, parseInt(e.target.value) || 0))}
-                        min={0}
-                        className="px-3 py-2 border border-slate-200 rounded-lg outline-none focus:border-blue-500 bg-white font-bold" 
-                      />
-                    </div>
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
+                    <label className="text-xs font-bold text-slate-500 uppercase self-end">{t('drawer_adults')}</label>
+                    <label className="text-xs font-bold text-slate-500 uppercase self-end">{t('drawer_children')}</label>
+                    <input 
+                      type="number" 
+                      value={calcAdults}
+                      onChange={e => setCalcAdults(Math.max(1, parseInt(e.target.value) || 1))}
+                      min={1}
+                      className="px-3 py-2 border border-slate-200 rounded-lg outline-none focus:border-blue-500 bg-white font-bold w-full" 
+                    />
+                    <input 
+                      type="number" 
+                      value={calcChildren}
+                      onChange={e => setCalcChildren(Math.max(0, parseInt(e.target.value) || 0))}
+                      min={0}
+                      className="px-3 py-2 border border-slate-200 rounded-lg outline-none focus:border-blue-500 bg-white font-bold w-full" 
+                    />
                   </div>
                   <div className="flex items-center justify-between pt-4 border-t border-blue-100 mt-2">
                     <div>
