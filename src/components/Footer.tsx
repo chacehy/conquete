@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { MapPin, Mail, Phone, MessageCircle, Globe, Clock, Sliders } from 'lucide-react';
 import { useLanguage } from '@/lib/LanguageContext';
-import LogoSymbol from './LogoSymbol';
+import BrandLogo from './BrandLogo';
 
 export default function Footer() {
   const { t } = useLanguage();
@@ -12,9 +12,9 @@ export default function Footer() {
     <footer className="bg-slate-900 text-slate-400 pt-16 pb-8 border-t border-slate-800">
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-12 gap-10 mb-12">
         <div className="md:col-span-5 flex flex-col gap-4">
-          <span className="font-heading text-2xl font-black text-white flex items-center gap-2.5">
-            <LogoSymbol className="w-7 h-7" fillClassName="fill-blue-500" /> Conquête<span className="text-blue-500">.</span>
-          </span>
+          <Link href="/" className="flex items-center text-white hover:text-blue-400 transition-colors w-fit">
+            <BrandLogo logoHeightClass="h-9" fillClassName="fill-current" />
+          </Link>
           <p className="text-sm leading-relaxed">
             {t('footer_tagline')}
           </p>

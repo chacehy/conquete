@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Sliders, Globe, Menu, X } from 'lucide-react';
 import { useLanguage } from '@/lib/LanguageContext';
-import LogoSymbol from './LogoSymbol';
+import BrandLogo from './BrandLogo';
 
 interface HeaderProps {
   transparent?: boolean;
@@ -33,11 +33,10 @@ export default function Header({ transparent = false }: HeaderProps) {
     }>
       {!mobileMenuOpen ? (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between w-full">
-          <Link href="/" className={`font-heading text-2xl font-black tracking-tight flex items-center gap-2.5 transition-colors ${
-            transparent ? 'text-blue-400' : 'text-blue-600'
+          <Link href="/" className={`flex items-center transition-colors ${
+            transparent ? 'text-white hover:text-blue-400' : 'text-[#002f86] hover:text-blue-600'
           }`}>
-            <LogoSymbol className="w-8 h-8 shrink-0" fillClassName="fill-current" />
-            <span className="truncate">Conquête</span><span className={transparent ? 'text-white' : 'text-slate-900'}>.</span>
+            <BrandLogo logoHeightClass="h-8 md:h-10" fillClassName="fill-current" />
           </Link>
 
           <nav className="hidden md:flex items-center gap-8 font-semibold text-sm">
@@ -104,9 +103,9 @@ export default function Header({ transparent = false }: HeaderProps) {
             <Link 
               href="/" 
               onClick={() => setMobileMenuOpen(false)} 
-              className="font-heading text-2xl font-black tracking-tight flex items-center gap-2.5 text-blue-500"
+              className="text-white hover:text-blue-400 transition-colors"
             >
-              <LogoSymbol className="w-8 h-8" fillClassName="fill-current" /> Conquête<span className="text-white">.</span>
+              <BrandLogo logoHeightClass="h-8" fillClassName="fill-current" />
             </Link>
             <button 
               onClick={() => setMobileMenuOpen(false)}

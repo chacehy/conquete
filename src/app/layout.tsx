@@ -31,6 +31,11 @@ export const metadata: Metadata = {
   title: "Conquête Voyages - Circuits d'Exception & Omra Premium",
   description: "Agence de voyages haut de gamme. Vivez des pèlerinages sacrés uniques ou évadez-vous dans des circuits internationaux d'exception sur-mesure.",
   keywords: ["voyage", "omra", "hadj", "sur-mesure", "billetterie", "luxe", "agence de voyage", "conquete"],
+  icons: {
+    icon: [
+      { url: "/Conquete Logos/conquete Navy favicon.svg", type: "image/svg+xml" }
+    ],
+  }
 };
 
 export default function RootLayout({
