@@ -1,8 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { Compass, MapPin, Mail, Phone, MessageCircle, Globe, Clock, Sliders } from 'lucide-react';
+import { MapPin, Mail, Phone, MessageCircle, Globe, Clock, Sliders } from 'lucide-react';
 import { useLanguage } from '@/lib/LanguageContext';
+import LogoSymbol from './LogoSymbol';
 
 export default function Footer() {
   const { t } = useLanguage();
@@ -11,8 +12,8 @@ export default function Footer() {
     <footer className="bg-slate-900 text-slate-400 pt-16 pb-8 border-t border-slate-800">
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-12 gap-10 mb-12">
         <div className="md:col-span-5 flex flex-col gap-4">
-          <span className="font-heading text-2xl font-black text-white flex items-center gap-2">
-            <Compass className="w-6 h-6 text-blue-500" /> Conquête<span className="text-blue-500">.</span>
+          <span className="font-heading text-2xl font-black text-white flex items-center gap-2.5">
+            <LogoSymbol className="w-7 h-7" fillClassName="fill-blue-500" /> Conquête<span className="text-blue-500">.</span>
           </span>
           <p className="text-sm leading-relaxed">
             {t('footer_tagline')}
