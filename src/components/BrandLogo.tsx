@@ -45,8 +45,7 @@ export default function BrandLogo({ className = 'h-14 w-auto', fillClassName = '
       tweenRef.current = gsap.to(symbol, {
         rotation: '+=360',
         duration: 1.2,
-        ease: 'power1.inOut',
-        repeat: -1,
+        ease: 'power2.inOut',
       });
     };
 

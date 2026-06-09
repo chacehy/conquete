@@ -35,8 +35,7 @@ export default function LogoSymbol({ className = 'w-7 h-7', fillClassName = 'fil
       spinTween = gsap.to(symbolGroup, {
         rotation: '+=360',
         duration: 1.2,
-        ease: 'power1.inOut',
-        repeat: -1,
+        ease: 'power2.inOut',
       });
       tweenRef.current = spinTween;
     };
