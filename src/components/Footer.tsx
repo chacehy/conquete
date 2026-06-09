@@ -17,6 +17,10 @@ export default function Footer() {
           <p className="text-sm leading-relaxed">
             {t('footer_tagline')}
           </p>
+          <div className="flex items-start gap-2 text-sm font-semibold">
+            <Clock className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
+            <span className="leading-relaxed">{t('footer_hours')}</span>
+          </div>
           <div className="flex gap-4 mt-2 text-slate-500">
             <a href="https://web.facebook.com/ConqueteVoyages/?_rdc=1&_rdr" target="_blank" rel="noopener noreferrer" className="hover:text-[#1877F2] transition-colors" aria-label="Facebook">
               <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
@@ -65,10 +69,6 @@ export default function Footer() {
             <li className="flex items-center gap-2">
               <Mail className="w-4 h-4 text-blue-500 shrink-0" />
               <a href="mailto:conquetevoyages@yahoo.fr" className="hover:text-white transition-colors">conquetevoyages@yahoo.fr</a>
-            </li>
-            <li className="flex items-start gap-2">
-              <Clock className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
-              <span className="leading-relaxed">{t('footer_hours')}</span>
             </li>
           </ul>
         </div>
