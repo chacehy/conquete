@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useCallback } from 'react';
 import gsap from 'gsap';
 
 interface BrandLogoProps {
@@ -30,53 +30,44 @@ export default function BrandLogo({ className = 'h-14 w-auto', fillClassName = '
   const wrapperRef = useRef<HTMLDivElement>(null);
   const tweenRef = useRef<gsap.core.Tween | null>(null);
 
+  // Set transformOrigin once on mount
   useEffect(() => {
     const symbol = symbolRef.current;
-    const wrapper = wrapperRef.current;
-    if (!symbol || !wrapper) return;
-
+    if (!symbol) return;
     gsap.set(symbol, { transformOrigin: '50% 50%' });
+    return () => { gsap.killTweensOf(symbol); };
+  }, []);
 
-    let hovered = false;
+  const handleMouseEnter = useCallback(() => {
+    const symbol = symbolRef.current;
+    if (!symbol) return;
+    if (tweenRef.current) tweenRef.current.kill();
+    tweenRef.current = gsap.to(symbol, {
+      rotation: '+=360',
+      duration: 1.4,
+      ease: 'power2.inOut',
+    });
+  }, []);
 
-    const spinReverse = () => {
-      if (tweenRef.current) tweenRef.current.kill();
-      tweenRef.current = gsap.to(symbol, {
-        rotation: '-=360',
-        duration: 1.8,        // slower — more deliberate feel
-        ease: 'power1.inOut', // gentler easing on the way back
-      });
-    };
-
-    const handleMouseEnter = () => {
-      hovered = true;
-      if (tweenRef.current) tweenRef.current.kill();
-      tweenRef.current = gsap.to(symbol, {
-        rotation: '+=360',
-        duration: 1.4,
-        ease: 'power2.inOut',
-      });
-    };
-
-    const handleMouseLeave = () => {
-      hovered = false;
-      // Always reverse — whether forward spin is mid-flight or already done
-      spinReverse();
-    };
-
-    wrapper.addEventListener('mouseenter', handleMouseEnter);
-    wrapper.addEventListener('mouseleave', handleMouseLeave);
-
-    return () => {
-      wrapper.removeEventListener('mouseenter', handleMouseEnter);
-      wrapper.removeEventListener('mouseleave', handleMouseLeave);
-      if (tweenRef.current) tweenRef.current.kill();
-      gsap.killTweensOf(symbol);
-    };
+  const handleMouseLeave = useCallback(() => {
+    const symbol = symbolRef.current;
+    if (!symbol) return;
+    if (tweenRef.current) tweenRef.current.kill();
+    tweenRef.current = gsap.to(symbol, {
+      rotation: '-=360',
+      duration: 1.8,
+      ease: 'power1.inOut',
+    });
   }, []);
 
   return (
-    <div ref={wrapperRef} className={`inline-flex shrink-0 ${className}`} style={{ aspectRatio: '2483/887' }}>
+    <div
+      ref={wrapperRef}
+      className={`inline-flex shrink-0 ${className}`}
+      style={{ aspectRatio: '2483/887' }}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
       <svg
         className="w-full h-full"
         viewBox="0 0 2483 887"

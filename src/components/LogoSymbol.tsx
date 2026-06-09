@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useCallback } from 'react';
 import gsap from 'gsap';
 
 interface LogoSymbolProps {
@@ -12,49 +12,40 @@ export default function LogoSymbol({ className = 'w-7 h-7', fillClassName = 'fil
   const containerRef = useRef<SVGSVGElement>(null);
   const tweenRef = useRef<gsap.core.Tween | null>(null);
 
+  // Set transform origin once on mount
   useEffect(() => {
     const svg = containerRef.current;
     if (!svg) return;
-
     const symbolGroup = svg.querySelector<SVGGElement>('.logo-symbol-group');
     if (!symbolGroup) return;
-
     gsap.set(symbolGroup, { svgOrigin: '333.5 333.5' });
+    return () => { gsap.killTweensOf(symbolGroup); };
+  }, []);
 
-    const spinReverse = () => {
-      if (tweenRef.current) tweenRef.current.kill();
-      tweenRef.current = gsap.to(symbolGroup, {
-        rotation: '-=360',
-        duration: 1.8,
-        ease: 'power1.inOut',
-      });
-    };
+  const handleMouseEnter = useCallback(() => {
+    const svg = containerRef.current;
+    if (!svg) return;
+    const symbolGroup = svg.querySelector<SVGGElement>('.logo-symbol-group');
+    if (!symbolGroup) return;
+    if (tweenRef.current) tweenRef.current.kill();
+    tweenRef.current = gsap.to(symbolGroup, {
+      rotation: '+=360',
+      duration: 1.4,
+      ease: 'power2.inOut',
+    });
+  }, []);
 
-    const handleMouseEnter = () => {
-      if (tweenRef.current) tweenRef.current.kill();
-      tweenRef.current = gsap.to(symbolGroup, {
-        rotation: '+=360',
-        duration: 1.4,
-        ease: 'power2.inOut',
-      });
-    };
-
-    const handleMouseLeave = () => {
-      spinReverse();
-    };
-
-    const parent = svg.parentElement;
-    if (!parent) return;
-
-    parent.addEventListener('mouseenter', handleMouseEnter);
-    parent.addEventListener('mouseleave', handleMouseLeave);
-
-    return () => {
-      parent.removeEventListener('mouseenter', handleMouseEnter);
-      parent.removeEventListener('mouseleave', handleMouseLeave);
-      if (tweenRef.current) tweenRef.current.kill();
-      gsap.killTweensOf(symbolGroup);
-    };
+  const handleMouseLeave = useCallback(() => {
+    const svg = containerRef.current;
+    if (!svg) return;
+    const symbolGroup = svg.querySelector<SVGGElement>('.logo-symbol-group');
+    if (!symbolGroup) return;
+    if (tweenRef.current) tweenRef.current.kill();
+    tweenRef.current = gsap.to(symbolGroup, {
+      rotation: '-=360',
+      duration: 1.8,
+      ease: 'power1.inOut',
+    });
   }, []);
 
   return (
@@ -65,6 +56,8 @@ export default function LogoSymbol({ className = 'w-7 h-7', fillClassName = 'fil
       version="1.1"
       xmlns="http://www.w3.org/2000/svg"
       style={{ fillRule: 'evenodd', clipRule: 'evenodd', strokeLinejoin: 'round', strokeMiterlimit: 2 }}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       <g transform="matrix(1,0,0,1,-1463.280885,2252.477865)">
         {/* All 4 petals wrapped together so they spin as one unit */}
