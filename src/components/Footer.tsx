@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Compass, MapPin, Send, Sliders } from 'lucide-react';
+import { Compass, MapPin, Mail, Phone, MessageCircle, Globe, Sliders } from 'lucide-react';
 import { useLanguage } from '@/lib/LanguageContext';
 
 export default function Footer() {
@@ -59,8 +59,26 @@ export default function Footer() {
         <div className="md:col-span-3 flex flex-col gap-4">
           <h4 className="text-white font-extrabold text-sm uppercase tracking-wider">{t('footer_contact_title')}</h4>
           <ul className="space-y-2 text-sm font-semibold">
-            <li className="flex items-center gap-2"><MapPin className="w-4 h-4 text-blue-500 shrink-0" /> {t('footer_address')}</li>
-            <li className="flex items-center gap-2"><Send className="w-4 h-4 text-blue-500 shrink-0" /> contact@conquete-voyages.fr</li>
+            <li className="flex items-start gap-2">
+              <MapPin className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" /> 
+              <span>{t('footer_address')}</span>
+            </li>
+            <li className="flex items-center gap-2">
+              <Phone className="w-4 h-4 text-blue-500 shrink-0" />
+              <a href="tel:0550404320" className="hover:text-white transition-colors">0550 40 43 20</a>
+            </li>
+            <li className="flex items-center gap-2">
+              <MessageCircle className="w-4 h-4 text-emerald-500 shrink-0" />
+              <a href="https://wa.me/213550404320" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">WhatsApp : +213 550 40 43 20</a>
+            </li>
+            <li className="flex items-center gap-2">
+              <Mail className="w-4 h-4 text-blue-500 shrink-0" />
+              <a href="mailto:conquetevoyages@yahoo.fr" className="hover:text-white transition-colors">conquetevoyages@yahoo.fr</a>
+            </li>
+            <li className="flex items-center gap-2">
+              <Globe className="w-4 h-4 text-blue-500 shrink-0" />
+              <a href="https://conquetevoyages.dz" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">conquetevoyages.dz</a>
+            </li>
           </ul>
         </div>
       </div>
