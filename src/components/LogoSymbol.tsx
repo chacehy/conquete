@@ -45,15 +45,10 @@ export default function LogoSymbol({ className = 'w-7 h-7', fillClassName = 'fil
         tweenRef.current.kill();
         tweenRef.current = null;
       }
-      // Snap cleanly back to 0 from wherever we are
-      const currentRotation = gsap.getProperty(symbolGroup, 'rotation') as number;
-      const normalised = ((currentRotation % 360) + 360) % 360;
-      // Set to the normalised value first so the tween doesn't overshoot by 360
-      gsap.set(symbolGroup, { rotation: normalised });
       tweenRef.current = gsap.to(symbolGroup, {
-        rotation: 0,
-        duration: 0.6,
-        ease: 'power2.out',
+        rotation: '-=360',
+        duration: 1.2,
+        ease: 'power2.inOut',
       });
     };
 

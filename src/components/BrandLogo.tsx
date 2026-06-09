@@ -54,13 +54,11 @@ export default function BrandLogo({ className = 'h-14 w-auto', fillClassName = '
         tweenRef.current.kill();
         tweenRef.current = null;
       }
-      // Normalise to 0-360 then tween back to 0
-      const cur = ((gsap.getProperty(symbol, 'rotation') as number) % 360 + 360) % 360;
-      gsap.set(symbol, { rotation: cur });
-      gsap.to(symbol, {
-        rotation: 0,
-        duration: 0.6,
-        ease: 'power2.out',
+      // Spin one full turn in reverse
+      tweenRef.current = gsap.to(symbol, {
+        rotation: '-=360',
+        duration: 1.2,
+        ease: 'power2.inOut',
       });
     };
 
