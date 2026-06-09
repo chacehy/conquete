@@ -35,31 +35,41 @@ export default function BrandLogo({ className = 'h-14 w-auto', fillClassName = '
     const wrapper = wrapperRef.current;
     if (!symbol || !wrapper) return;
 
-    // transformOrigin '50% 50%' = center of the element's own bounding box.
-    // Because the symbol group is a direct child of <svg> with no inherited
-    // transform baggage, this will always be the visual center of the 4 petals.
     gsap.set(symbol, { transformOrigin: '50% 50%' });
 
-    const handleMouseEnter = () => {
-      if (tweenRef.current) tweenRef.current.kill();
-      tweenRef.current = gsap.to(symbol, {
-        rotation: '+=360',
-        duration: 1.2,
-        ease: 'power2.inOut',
-      });
-    };
+    // Track whether the cursor is currently over the logo
+    let hovered = false;
 
-    const handleMouseLeave = () => {
-      if (tweenRef.current) {
-        tweenRef.current.kill();
-        tweenRef.current = null;
-      }
-      // Spin one full turn in reverse
+    const spinReverse = () => {
+      if (tweenRef.current) tweenRef.current.kill();
       tweenRef.current = gsap.to(symbol, {
         rotation: '-=360',
         duration: 1.2,
         ease: 'power2.inOut',
       });
+    };
+
+    const handleMouseEnter = () => {
+      hovered = true;
+      if (tweenRef.current) tweenRef.current.kill();
+      tweenRef.current = gsap.to(symbol, {
+        rotation: '+=360',
+        duration: 1.2,
+        ease: 'power2.inOut',
+        onComplete: () => {
+          // Mouse left while (or before) the spin finished → reverse now
+          if (!hovered) spinReverse();
+        },
+      });
+    };
+
+    const handleMouseLeave = () => {
+      hovered = false;
+      // If still mid-spin, interrupt immediately and reverse
+      // If already done, onComplete above will have triggered spinReverse
+      if (tweenRef.current?.isActive()) {
+        spinReverse();
+      }
     };
 
     wrapper.addEventListener('mouseenter', handleMouseEnter);

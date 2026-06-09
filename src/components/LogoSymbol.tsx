@@ -19,37 +19,37 @@ export default function LogoSymbol({ className = 'w-7 h-7', fillClassName = 'fil
     const symbolGroup = svg.querySelector<SVGGElement>('.logo-symbol-group');
     if (!symbolGroup) return;
 
-    // The SVG viewBox is "0 0 667 667", so the visual center is at 333.5, 333.5
-    // Use svgOrigin to set the rotation pivot in SVG coordinate space
     gsap.set(symbolGroup, { svgOrigin: '333.5 333.5' });
 
-    let spinTween: gsap.core.Tween | null = null;
+    let hovered = false;
 
-    const handleMouseEnter = () => {
-      // Kill any return-to-zero tween
-      if (tweenRef.current) {
-        tweenRef.current.kill();
-        tweenRef.current = null;
-      }
-      // Smooth continuous spin
-      spinTween = gsap.to(symbolGroup, {
-        rotation: '+=360',
-        duration: 1.2,
-        ease: 'power2.inOut',
-      });
-      tweenRef.current = spinTween;
-    };
-
-    const handleMouseLeave = () => {
-      if (tweenRef.current) {
-        tweenRef.current.kill();
-        tweenRef.current = null;
-      }
+    const spinReverse = () => {
+      if (tweenRef.current) tweenRef.current.kill();
       tweenRef.current = gsap.to(symbolGroup, {
         rotation: '-=360',
         duration: 1.2,
         ease: 'power2.inOut',
       });
+    };
+
+    const handleMouseEnter = () => {
+      hovered = true;
+      if (tweenRef.current) tweenRef.current.kill();
+      tweenRef.current = gsap.to(symbolGroup, {
+        rotation: '+=360',
+        duration: 1.2,
+        ease: 'power2.inOut',
+        onComplete: () => {
+          if (!hovered) spinReverse();
+        },
+      });
+    };
+
+    const handleMouseLeave = () => {
+      hovered = false;
+      if (tweenRef.current?.isActive()) {
+        spinReverse();
+      }
     };
 
     const parent = svg.parentElement;
