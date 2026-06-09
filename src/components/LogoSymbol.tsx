@@ -18,25 +18,17 @@ export default function LogoSymbol({ className = 'w-7 h-7', fillClassName = 'fil
     const symbolGroup = svg.querySelector('.logo-symbol-group');
     if (!symbolGroup) return;
     
-    // Exact geometric center for rotation of the symbol petals
-    // in the translated artboard coordinate space:
-    gsap.set(symbolGroup, { transformOrigin: '1796.7px -1919.1px' });
+    // Set standard transform origin to the center of the group's bounding box
+    gsap.set(symbolGroup, { transformOrigin: '50% 50%' });
     
     const parent = svg.parentElement;
     if (!parent) return;
     
-    // Staggered entrance animation on load
-    gsap.fromTo(symbolGroup, 
-      { opacity: 0, scale: 0.6, rotation: -45 }, 
-      { opacity: 1, scale: 1, rotation: 0, duration: 0.8, ease: 'power3.out' }
-    );
-    
     const handleMouseEnter = () => {
       gsap.to(symbolGroup, {
         rotation: 90,
-        scale: 1.08,
         duration: 0.5,
-        ease: 'back.out(1.7)',
+        ease: 'power2.out',
         overwrite: 'auto'
       });
     };
@@ -44,9 +36,8 @@ export default function LogoSymbol({ className = 'w-7 h-7', fillClassName = 'fil
     const handleMouseLeave = () => {
       gsap.to(symbolGroup, {
         rotation: 0,
-        scale: 1,
         duration: 0.5,
-        ease: 'back.out(1.7)',
+        ease: 'power2.out',
         overwrite: 'auto'
       });
     };
