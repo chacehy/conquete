@@ -13,7 +13,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-12 gap-10 mb-12">
         <div className="md:col-span-5 flex flex-col gap-4">
           <Link href="/" className="flex items-center text-white hover:text-blue-400 transition-colors w-fit">
-            <BrandLogo className="h-12 w-auto" fillClassName="fill-current" />
+            <BrandLogo className="h-10 w-auto" fillClassName="fill-current" />
           </Link>
           <p className="text-sm leading-relaxed">
             {t('footer_tagline')}
