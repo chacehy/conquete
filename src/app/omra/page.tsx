@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -24,6 +24,7 @@ export default function OmraPage() {
   const [calcAdults, setCalcAdults] = useState(2);
   const [calcChildren, setCalcChildren] = useState(0);
   const [showDrawerBookingForm, setShowDrawerBookingForm] = useState(false);
+  const bookingFormRef = useRef<HTMLDivElement>(null);
 
   // Form Booking States
   const [bookName, setBookName] = useState('');
@@ -408,7 +409,12 @@ export default function OmraPage() {
                     </div>
                     {!showDrawerBookingForm && (
                       <button 
-                        onClick={() => setShowDrawerBookingForm(true)}
+                        onClick={() => {
+                          setShowDrawerBookingForm(true);
+                          setTimeout(() => {
+                            bookingFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                          }, 50);
+                        }}
                         className="px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-bold shadow-md cursor-pointer"
                       >
                         {t('btn_book')}
@@ -419,6 +425,7 @@ export default function OmraPage() {
 
                 {showDrawerBookingForm && (
                   <motion.div 
+                    ref={bookingFormRef}
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
                     className="pt-6 border-t border-slate-100 space-y-4"
