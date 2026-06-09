@@ -21,35 +21,26 @@ export default function LogoSymbol({ className = 'w-7 h-7', fillClassName = 'fil
 
     gsap.set(symbolGroup, { svgOrigin: '333.5 333.5' });
 
-    let hovered = false;
-
     const spinReverse = () => {
       if (tweenRef.current) tweenRef.current.kill();
       tweenRef.current = gsap.to(symbolGroup, {
         rotation: '-=360',
-        duration: 1.2,
-        ease: 'power2.inOut',
+        duration: 1.8,
+        ease: 'power1.inOut',
       });
     };
 
     const handleMouseEnter = () => {
-      hovered = true;
       if (tweenRef.current) tweenRef.current.kill();
       tweenRef.current = gsap.to(symbolGroup, {
         rotation: '+=360',
-        duration: 1.2,
+        duration: 1.4,
         ease: 'power2.inOut',
-        onComplete: () => {
-          if (!hovered) spinReverse();
-        },
       });
     };
 
     const handleMouseLeave = () => {
-      hovered = false;
-      if (tweenRef.current?.isActive()) {
-        spinReverse();
-      }
+      spinReverse();
     };
 
     const parent = svg.parentElement;

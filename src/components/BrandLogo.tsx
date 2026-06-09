@@ -37,15 +37,14 @@ export default function BrandLogo({ className = 'h-14 w-auto', fillClassName = '
 
     gsap.set(symbol, { transformOrigin: '50% 50%' });
 
-    // Track whether the cursor is currently over the logo
     let hovered = false;
 
     const spinReverse = () => {
       if (tweenRef.current) tweenRef.current.kill();
       tweenRef.current = gsap.to(symbol, {
         rotation: '-=360',
-        duration: 1.2,
-        ease: 'power2.inOut',
+        duration: 1.8,        // slower — more deliberate feel
+        ease: 'power1.inOut', // gentler easing on the way back
       });
     };
 
@@ -54,22 +53,15 @@ export default function BrandLogo({ className = 'h-14 w-auto', fillClassName = '
       if (tweenRef.current) tweenRef.current.kill();
       tweenRef.current = gsap.to(symbol, {
         rotation: '+=360',
-        duration: 1.2,
+        duration: 1.4,
         ease: 'power2.inOut',
-        onComplete: () => {
-          // Mouse left while (or before) the spin finished → reverse now
-          if (!hovered) spinReverse();
-        },
       });
     };
 
     const handleMouseLeave = () => {
       hovered = false;
-      // If still mid-spin, interrupt immediately and reverse
-      // If already done, onComplete above will have triggered spinReverse
-      if (tweenRef.current?.isActive()) {
-        spinReverse();
-      }
+      // Always reverse — whether forward spin is mid-flight or already done
+      spinReverse();
     };
 
     wrapper.addEventListener('mouseenter', handleMouseEnter);
