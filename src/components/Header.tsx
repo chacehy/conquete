@@ -36,7 +36,7 @@ export default function Header({ transparent = false }: HeaderProps) {
           <Link href="/" className={`flex items-center transition-colors ${
             transparent ? 'text-white hover:text-blue-400' : 'text-[#002f86] hover:text-blue-600'
           }`}>
-            <BrandLogo logoHeightClass="h-8 md:h-10" fillClassName="fill-current" />
+            <BrandLogo className="h-11 md:h-14 w-auto" fillClassName="fill-current" />
           </Link>
 
           <nav className="hidden md:flex items-center gap-8 font-semibold text-sm">
@@ -105,7 +105,7 @@ export default function Header({ transparent = false }: HeaderProps) {
               onClick={() => setMobileMenuOpen(false)} 
               className="text-white hover:text-blue-400 transition-colors"
             >
-              <BrandLogo logoHeightClass="h-8" fillClassName="fill-current" />
+              <BrandLogo className="h-10 w-auto" fillClassName="fill-current" />
             </Link>
             <button 
               onClick={() => setMobileMenuOpen(false)}
