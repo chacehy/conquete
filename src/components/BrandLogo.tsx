@@ -44,8 +44,8 @@ export default function BrandLogo({ className = 'h-14 w-auto', fillClassName = '
     if (tweenRef.current) tweenRef.current.kill();
     tweenRef.current = gsap.to(symbol, {
       rotation: '+=360',
-      duration: 1.4,
-      ease: 'power2.inOut',
+      duration: 0.65,
+      ease: 'expo.out',
     });
   }, []);
 
@@ -55,8 +55,8 @@ export default function BrandLogo({ className = 'h-14 w-auto', fillClassName = '
     if (tweenRef.current) tweenRef.current.kill();
     tweenRef.current = gsap.to(symbol, {
       rotation: '-=360',
-      duration: 1.8,
-      ease: 'power1.inOut',
+      duration: 0.85,
+      ease: 'expo.inOut',
     });
   }, []);
 
