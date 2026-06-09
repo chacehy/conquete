@@ -10,7 +10,7 @@ export default function Footer() {
   return (
     <footer className="bg-slate-900 text-slate-400 pt-16 pb-8 border-t border-slate-800">
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-12 gap-10 mb-12">
-        <div className="md:col-span-4 flex flex-col gap-4">
+        <div className="md:col-span-5 flex flex-col gap-4">
           <span className="font-heading text-2xl font-black text-white flex items-center gap-2">
             <Compass className="w-6 h-6 text-blue-500" /> Conquête<span className="text-blue-500">.</span>
           </span>
@@ -38,15 +38,7 @@ export default function Footer() {
             <li><Link href="/sur-mesure" className="hover:text-white transition-colors">{t('footer_tailormade')}</Link></li>
           </ul>
         </div>
-        <div className="md:col-span-2 flex flex-col gap-4">
-          <h4 className="text-white font-extrabold text-sm uppercase tracking-wider">{t('footer_links')}</h4>
-          <ul className="space-y-2 text-sm font-semibold">
-            <li><a href="#" className="hover:text-white transition-colors">{t('footer_cookies')}</a></li>
-            <li><a href="#" className="hover:text-white transition-colors">{t('footer_terms')}</a></li>
-            <li><a href="#" className="hover:text-white transition-colors">{t('footer_insurance')}</a></li>
-          </ul>
-        </div>
-        <div className="md:col-span-3 flex flex-col gap-4">
+        <div className="md:col-span-4 flex flex-col gap-4">
           <h4 className="text-white font-extrabold text-sm uppercase tracking-wider">{t('footer_contact_title')}</h4>
           <ul className="space-y-2.5 text-sm font-semibold">
             <li className="flex items-start gap-2">
