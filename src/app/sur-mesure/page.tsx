@@ -9,6 +9,7 @@ import { supabase } from '@/lib/supabase';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { useLanguage } from '@/lib/LanguageContext';
+import SuccessModal from '@/components/SuccessModal';
 
 export default function SurMesurePage() {
   const { t, language } = useLanguage();
@@ -24,6 +25,9 @@ export default function SurMesurePage() {
   const [smName, setSmName] = useState('');
   const [smEmail, setSmEmail] = useState('');
   const [smPhone, setSmPhone] = useState('');
+
+  // Success Modal
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   // Toasts
   const [toasts, setToasts] = useState<{ id: number; message: string; type: 'success' | 'error' }[]>([]);
@@ -74,18 +78,24 @@ export default function SurMesurePage() {
         details
       }]);
       if (error) throw error;
-      addToast(t('toast_success_sm'), 'success');
-      // Reset
-      setStep(1);
-      setSmDest('');
-      setSmNotes('');
-      setSmName('');
-      setSmEmail('');
-      setSmPhone('');
+      setShowSuccessModal(true);
     } catch (err) {
       console.error(err);
       addToast(t('toast_error_save'), 'error');
     }
+  };
+
+  const handleCloseModal = () => {
+    setShowSuccessModal(false);
+    setStep(1);
+    setSmDest('');
+    setSmNotes('');
+    setSmName('');
+    setSmEmail('');
+    setSmPhone('');
+    setSmPassengers(2);
+    setSmProfile('couple');
+    setSmBudget('Confort');
   };
 
   return (
@@ -227,10 +237,9 @@ export default function SurMesurePage() {
                           onChange={e => setSmBudget(e.target.value)}
                           className="px-3 py-2.5 rounded-lg border border-slate-200 bg-white text-sm font-semibold"
                         >
-                          <option value="Eco">{language === 'ar' ? 'اقتصادي (< 1500 دج)' : 'Éco (< 1500 DA)'}</option>
-                          <option value="Confort">{language === 'ar' ? 'مريح (1500 دج - 3000 دج)' : 'Confort (1500 DA - 3000 DA)'}</option>
-                          <option value="Premium">{language === 'ar' ? 'ممتاز (3000 دج - 5000 دج)' : 'Premium (3000 DA - 5000 DA)'}</option>
-                          <option value="Luxe">{language === 'ar' ? 'فاخر (> 5000 دج)' : 'Luxe (> 5000 DA)'}</option>
+                          <option value="Confort">{language === 'ar' ? 'مريح' : 'Confort'}</option>
+                          <option value="Premium">{language === 'ar' ? 'ممتاز' : 'Premium'}</option>
+                          <option value="Luxe">{language === 'ar' ? 'فاخر' : 'Luxe'}</option>
                         </select>
                       </div>
                       <div className="flex flex-col gap-1.5">
@@ -316,6 +325,8 @@ export default function SurMesurePage() {
       </section>
 
       <Footer />
+
+      <SuccessModal isOpen={showSuccessModal} onClose={handleCloseModal} language={language} />
 
       {/* Toast Notification Container */}
       <div className="fixed bottom-6 right-6 z-[999] flex flex-col gap-3 max-w-sm w-full">

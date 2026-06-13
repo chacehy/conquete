@@ -11,6 +11,7 @@ import { Package } from '@/types';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { useLanguage } from '@/lib/LanguageContext';
+import SuccessModal from '@/components/SuccessModal';
 
 export default function InternationalPage() {
   const { t, tText, language } = useLanguage();
@@ -30,6 +31,9 @@ export default function InternationalPage() {
   const [bookEmail, setBookEmail] = useState('');
   const [bookPhone, setBookPhone] = useState('');
   const [bookDate, setBookDate] = useState('');
+
+  // Success Modal State
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   // Toasts
   const [toasts, setToasts] = useState<{ id: number; message: string; type: 'success' | 'error' }[]>([]);
@@ -102,12 +106,12 @@ export default function InternationalPage() {
         details
       }]);
       if (error) throw error;
-      addToast(t('toast_success_lead'), 'success');
       setBookName('');
       setBookEmail('');
       setBookPhone('');
       setShowDrawerBookingForm(false);
       setDrawerOpen(false);
+      setShowSuccessModal(true);
     } catch (err) {
       console.error(err);
       addToast(t('toast_error_lead'), 'error');
@@ -165,11 +169,7 @@ export default function InternationalPage() {
                   <p className="text-sm text-slate-600 line-clamp-3 leading-relaxed flex-1">
                     {tText(pkg.description)}
                   </p>
-                  <div className="flex items-center justify-between pt-4 border-t border-slate-100 mt-auto">
-                    <div>
-                      <span className="text-[10px] font-bold uppercase text-slate-400">{t('lbl_a_partir_de')}</span>
-                      <div className="text-xl font-extrabold text-blue-600">{pkg.price_adult} DA <span className="text-xs text-slate-500 font-normal">/{language === 'ar' ? 'شخص' : 'pers'}</span></div>
-                    </div>
+                  <div className="flex items-center justify-end pt-4 border-t border-slate-100 mt-auto">
                     <button 
                       onClick={() => openPackageDetails(pkg)}
                       className="px-4 py-2 border border-blue-100 bg-blue-50 text-blue-600 text-sm font-bold rounded-lg hover:bg-blue-600 hover:text-white transition-all cursor-pointer"
@@ -300,11 +300,7 @@ export default function InternationalPage() {
                       className="px-3 py-2 border border-slate-200 rounded-lg outline-none focus:border-blue-500 bg-white font-bold w-full" 
                     />
                   </div>
-                  <div className="flex items-center justify-between pt-4 border-t border-blue-100 mt-2">
-                    <div>
-                      <span className="text-[10px] font-bold uppercase text-slate-400">{t('drawer_total')}</span>
-                      <div className="text-2xl font-black text-blue-600">{getCalcTotal().toLocaleString(language === 'ar' ? 'ar-DZ' : 'fr-FR')} DA</div>
-                    </div>
+                  <div className="flex items-center justify-end pt-4 border-t border-blue-100 mt-2">
                     {!showDrawerBookingForm && (
                       <button 
                         onClick={() => {
@@ -397,6 +393,8 @@ export default function InternationalPage() {
           </>
         )}
       </AnimatePresence>
+
+      <SuccessModal isOpen={showSuccessModal} onClose={() => setShowSuccessModal(false)} language={language} />
 
       {/* Toast Notification Container */}
       <div className="fixed bottom-6 right-6 z-[999] flex flex-col gap-3 max-w-sm w-full">

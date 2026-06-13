@@ -14,6 +14,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { useLanguage } from '@/lib/LanguageContext';
 import { gsap } from 'gsap';
+import SuccessModal from '@/components/SuccessModal';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 if (typeof window !== 'undefined') {
@@ -37,6 +38,9 @@ export default function LandingPage() {
   const [calcChildren, setCalcChildren] = useState(0);
   const [showDrawerBookingForm, setShowDrawerBookingForm] = useState(false);
   const bookingFormRef = useRef<HTMLDivElement>(null);
+
+  // Success Modal State
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   // Toast States
   const [toasts, setToasts] = useState<{ id: number; message: string; type: 'success' | 'error' }[]>([]);
@@ -228,6 +232,7 @@ export default function LandingPage() {
       setBookPhone('');
       setShowDrawerBookingForm(false);
       setDrawerOpen(false);
+      setShowSuccessModal(true);
     }
   };
 
@@ -592,11 +597,7 @@ export default function LandingPage() {
                   <p className="text-sm text-slate-600 line-clamp-2 leading-relaxed flex-1">
                     {tText(pkg.description)}
                   </p>
-                  <div className="flex items-center justify-between pt-4 border-t border-slate-100 mt-auto">
-                    <div>
-                      <span className="text-[10px] font-bold uppercase text-slate-400">{t('lbl_a_partir_de')}</span>
-                      <div className="text-lg font-extrabold text-blue-600">{pkg.price_adult} DA</div>
-                    </div>
+                  <div className="flex items-center justify-end pt-4 border-t border-slate-100 mt-auto">
                     <button 
                       onClick={() => openPackageDetails(pkg)}
                       className="px-3.5 py-1.5 border border-blue-100 bg-blue-50 text-blue-600 text-xs font-bold rounded-lg hover:bg-blue-600 hover:text-white transition-all cursor-pointer"
@@ -686,11 +687,7 @@ export default function LandingPage() {
                   <p className="text-sm text-slate-600 line-clamp-2 leading-relaxed flex-1">
                     {tText(pkg.description)}
                   </p>
-                  <div className="flex items-center justify-between pt-4 border-t border-slate-100 mt-auto">
-                    <div>
-                      <span className="text-[10px] font-bold uppercase text-slate-400">{t('lbl_a_partir_de')}</span>
-                      <div className="text-lg font-extrabold text-blue-600">{pkg.price_adult} DA</div>
-                    </div>
+                  <div className="flex items-center justify-end pt-4 border-t border-slate-100 mt-auto">
                     <button 
                       onClick={() => openPackageDetails(pkg)}
                       className="px-3.5 py-1.5 border border-blue-100 bg-blue-50 text-blue-600 text-xs font-bold rounded-lg hover:bg-blue-600 hover:text-white transition-all cursor-pointer"
@@ -842,11 +839,7 @@ export default function LandingPage() {
                       className="px-3 py-2 border border-slate-200 rounded-lg outline-none focus:border-blue-500 bg-white font-bold w-full" 
                     />
                   </div>
-                  <div className="flex items-center justify-between pt-4 border-t border-blue-100 mt-2">
-                    <div>
-                      <span className="text-[10px] font-bold uppercase text-slate-400">{t('drawer_total')}</span>
-                      <div className="text-2xl font-black text-blue-600">{getCalcTotal().toLocaleString(language === 'ar' ? 'ar-DZ' : 'fr-FR')} DA</div>
-                    </div>
+                  <div className="flex items-center justify-end pt-4 border-t border-blue-100 mt-2">
                     {!showDrawerBookingForm && (
                       <button 
                         onClick={() => {
@@ -939,6 +932,8 @@ export default function LandingPage() {
           </>
         )}
       </AnimatePresence>
+
+      <SuccessModal isOpen={showSuccessModal} onClose={() => setShowSuccessModal(false)} language={language} />
 
       {/* Toast Notification Container */}
       <div className="fixed bottom-6 right-6 z-[999] flex flex-col gap-3 max-w-sm w-full">
