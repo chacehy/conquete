@@ -394,7 +394,7 @@ export default function InternationalPage() {
         )}
       </AnimatePresence>
 
-      <SuccessModal isOpen={showSuccessModal} onClose={() => setShowSuccessModal(false)} language={language} />
+      <SuccessModal isOpen={showSuccessModal} onClose={() => { setShowSuccessModal(false); window.location.href = '/'; }} language={language} />
 
       {/* Toast Notification Container */}
       <div className="fixed bottom-6 right-6 z-[999] flex flex-col gap-3 max-w-sm w-full">

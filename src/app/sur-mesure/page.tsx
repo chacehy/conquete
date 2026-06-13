@@ -87,15 +87,7 @@ export default function SurMesurePage() {
 
   const handleCloseModal = () => {
     setShowSuccessModal(false);
-    setStep(1);
-    setSmDest('');
-    setSmNotes('');
-    setSmName('');
-    setSmEmail('');
-    setSmPhone('');
-    setSmPassengers(2);
-    setSmProfile('couple');
-    setSmBudget('Confort');
+    window.location.href = '/';
   };
 
   return (
