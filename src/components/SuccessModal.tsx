@@ -23,8 +23,8 @@ export default function SuccessModal({ isOpen, onClose, language }: SuccessModal
 
     // Initialize Anime.js animations after modal renders
     const timer = setTimeout(() => {
-      // 1. Draw the path trail
-      const pathEl = document.querySelector('#modal-flight-path') as SVGPathElement;
+      // 1. Draw the path trail by animating the mask path
+      const pathEl = document.querySelector('#modal-flight-path-mask') as SVGPathElement;
       if (pathEl) {
         const length = pathEl.getTotalLength();
         pathEl.style.strokeDasharray = `${length}`;
@@ -67,6 +67,9 @@ export default function SuccessModal({ isOpen, onClose, language }: SuccessModal
     : 'Votre demande a été enregistrée avec succès. Un conseiller vous contactera sous peu pour finaliser votre projet de voyage.';
   const btnText = isAr ? 'إغلاق' : 'Fermer';
 
+  // The flight path coordinate data (loop-de-loop climbing to the top-right)
+  const pathData = "M 30 120 C 70 120, 100 110, 120 95 C 140 80, 150 55, 140 45 C 130 35, 110 50, 115 70 C 120 90, 145 95, 165 85 C 205 65, 235 50, 270 50";
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -102,19 +105,34 @@ export default function SuccessModal({ isOpen, onClose, language }: SuccessModal
             <div className="relative w-[288px] h-[160px] my-3">
               <div className="absolute inset-0 m-auto w-36 h-36 bg-blue-50/60 rounded-full scale-90 animate-pulse pointer-events-none" />
               
-              {/* SVG containing the dotted line path */}
+              {/* SVG containing the dotted line path and mask */}
               <svg 
                 className="absolute inset-0 w-full h-full overflow-visible" 
                 viewBox="0 0 288 160"
                 fill="none"
               >
+                <defs>
+                  <mask id="flight-mask">
+                    <path
+                      id="modal-flight-path-mask"
+                      d={pathData}
+                      fill="none"
+                      stroke="#ffffff"
+                      strokeWidth="6"
+                      strokeLinecap="round"
+                    />
+                  </mask>
+                </defs>
+
+                {/* The visible dotted path, masked by the animating solid path */}
                 <path
                   id="modal-flight-path"
-                  d="M 30 110 C 90 110, 115 90, 125 70 C 140 40, 175 40, 155 80 C 140 110, 110 80, 130 50 C 145 30, 220 30, 260 80"
+                  d={pathData}
                   stroke="#3b82f6"
                   strokeWidth="2.5"
                   strokeLinecap="round"
                   strokeDasharray="4 6"
+                  mask="url(#flight-mask)"
                   className="opacity-70"
                 />
               </svg>
@@ -124,8 +142,8 @@ export default function SuccessModal({ isOpen, onClose, language }: SuccessModal
                 id="modal-plane-container" 
                 className="absolute top-0 left-0 w-0 h-0 pointer-events-none"
               >
-                {/* Offset the plane by -12px (-top-3 -left-3) so its center is exactly on the path point */}
-                <div className="absolute -top-3 -left-3 w-6 h-6 flex items-center justify-center -rotate-45">
+                {/* Offset the plane by -12px (-top-3 -left-3) and rotate clockwise 45deg to face forward (0deg) */}
+                <div className="absolute -top-3 -left-3 w-6 h-6 flex items-center justify-center rotate-45">
                   <svg
                     width="24"
                     height="24"
