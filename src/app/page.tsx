@@ -156,10 +156,28 @@ export default function LandingPage() {
       return;
     }
 
-    const email = prompt(t('prompt_email_devis'));
-    if (!email) return;
+    const email = prompt(t('prompt_email_devis')) || '';
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      addToast(language === 'ar' ? 'يرجى إدخال بريد إلكتروني صالح' : 'Veuillez entrer une adresse email valide', 'error');
+      return;
+    }
+
     const name = prompt(t('prompt_name')) || "Client Billetterie";
-    const phone = prompt(t('prompt_phone')) || "Non spécifié";
+    const phone = prompt(t('prompt_phone'));
+
+    if (!phone) {
+      addToast(language === 'ar' ? 'يرجى إدخال رقم الهاتف' : 'Le numéro de téléphone est requis', 'error');
+      return;
+    }
+
+    const cleanPhone = phone.replace(/\s+/g, '');
+    const hasLetters = /[a-zA-Z]/.test(cleanPhone);
+    const isValidPhone = /^[+0-9\-()]+$/.test(cleanPhone) && cleanPhone.length >= 8;
+
+    if (hasLetters || !isValidPhone) {
+      addToast(language === 'ar' ? 'يرجى إدخال رقم هاتف صالح (أرقام فقط)' : 'Veuillez entrer un numéro de téléphone valide (chiffres uniquement)', 'error');
+      return;
+    }
 
     const details = {
       departure: billDep,
@@ -188,10 +206,28 @@ export default function LandingPage() {
       return;
     }
 
-    const email = prompt(t('prompt_email_proposition'));
-    if (!email) return;
+    const email = prompt(t('prompt_email_proposition')) || '';
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      addToast(language === 'ar' ? 'يرجى إدخال بريد إلكتروني صالح' : 'Veuillez entrer une adresse email valide', 'error');
+      return;
+    }
+
     const name = prompt(t('prompt_name')) || "Client Hôtel";
-    const phone = prompt(t('prompt_phone')) || "Non spécifié";
+    const phone = prompt(t('prompt_phone'));
+
+    if (!phone) {
+      addToast(language === 'ar' ? 'يرجى إدخال رقم الهاتف' : 'Le numéro de téléphone est requis', 'error');
+      return;
+    }
+
+    const cleanPhone = phone.replace(/\s+/g, '');
+    const hasLetters = /[a-zA-Z]/.test(cleanPhone);
+    const isValidPhone = /^[+0-9\-()]+$/.test(cleanPhone) && cleanPhone.length >= 8;
+
+    if (hasLetters || !isValidPhone) {
+      addToast(language === 'ar' ? 'يرجى إدخال رقم هاتف صالح (أرقام فقط)' : 'Veuillez entrer un numéro de téléphone valide (chiffres uniquement)', 'error');
+      return;
+    }
 
     const details = {
       city: hotelCity,
@@ -209,8 +245,22 @@ export default function LandingPage() {
   // Reservation inside drawer
   const handleDrawerReservation = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedPackage || !bookName || !bookEmail || !bookPhone || !bookDate) {
+    if (!selectedPackage || !bookName || !bookPhone || !bookDate) {
       addToast(t('toast_required_fields'), 'error');
+      return;
+    }
+
+    const cleanPhone = bookPhone.replace(/\s+/g, '');
+    const hasLetters = /[a-zA-Z]/.test(cleanPhone);
+    const isValidPhone = /^[+0-9\-()]+$/.test(cleanPhone) && cleanPhone.length >= 8;
+
+    if (hasLetters || !isValidPhone) {
+      addToast(language === 'ar' ? 'يرجى إدخال رقم هاتف صالح (أرقام فقط)' : 'Veuillez entrer un numéro de téléphone valide (chiffres uniquement)', 'error');
+      return;
+    }
+
+    if (bookEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(bookEmail)) {
+      addToast(language === 'ar' ? 'يرجى إدخال بريد إلكتروني صالح' : 'Veuillez entrer une adresse email valide', 'error');
       return;
     }
 

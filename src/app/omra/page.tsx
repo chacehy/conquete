@@ -85,7 +85,24 @@ export default function OmraPage() {
 
   const handleReservation = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedPackage || !bookName || !bookEmail || !bookPhone || !bookDate) return;
+    if (!selectedPackage || !bookName || !bookPhone || !bookDate) {
+      addToast(t('toast_required_fields'), 'error');
+      return;
+    }
+
+    const cleanPhone = bookPhone.replace(/\s+/g, '');
+    const hasLetters = /[a-zA-Z]/.test(cleanPhone);
+    const isValidPhone = /^[+0-9\-()]+$/.test(cleanPhone) && cleanPhone.length >= 8;
+
+    if (hasLetters || !isValidPhone) {
+      addToast(language === 'ar' ? 'يرجى إدخال رقم هاتف صالح (أرقام فقط)' : 'Veuillez entrer un numéro de téléphone valide (chiffres uniquement)', 'error');
+      return;
+    }
+
+    if (bookEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(bookEmail)) {
+      addToast(language === 'ar' ? 'يرجى إدخال بريد إلكتروني صالح' : 'Veuillez entrer une adresse email valide', 'error');
+      return;
+    }
 
     const price = getCalcTotal();
     const details = {

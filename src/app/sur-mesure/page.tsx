@@ -54,8 +54,22 @@ export default function SurMesurePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!smName || !smEmail || !smPhone) {
-      addToast(t('toast_error_sm_contact'), 'error');
+    if (!smName || !smPhone) {
+      addToast(language === 'ar' ? 'يرجى ملء الاسم ورقم الهاتف' : 'Veuillez remplir votre nom et numéro de téléphone', 'error');
+      return;
+    }
+
+    const cleanPhone = smPhone.replace(/\s+/g, '');
+    const hasLetters = /[a-zA-Z]/.test(cleanPhone);
+    const isValidPhone = /^[+0-9\-()]+$/.test(cleanPhone) && cleanPhone.length >= 8;
+
+    if (hasLetters || !isValidPhone) {
+      addToast(language === 'ar' ? 'يرجى إدخال رقم هاتف صالح (أرقام فقط)' : 'Veuillez entrer un numéro de téléphone valide (chiffres uniquement)', 'error');
+      return;
+    }
+
+    if (smEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(smEmail)) {
+      addToast(language === 'ar' ? 'يرجى إدخال بريد إلكتروني صالح' : 'Veuillez entrer une adresse email valide', 'error');
       return;
     }
 
