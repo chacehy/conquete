@@ -32,20 +32,20 @@ export default function SuccessModal({ isOpen, onClose, language }: SuccessModal
         
         animate(pathEl, {
           strokeDashoffset: [length, 0],
-          duration: 1500,
-          easing: 'easeOutSine',
+          duration: 1800,
+          easing: 'easeInOutSine',
         });
       }
 
       // 2. Animate plane along path using createMotionPath
       try {
         const path = createMotionPath('#modal-flight-path');
-        animate('#modal-plane-group', {
+        animate('#modal-plane-container', {
           translateX: path.translateX,
           translateY: path.translateY,
           rotate: path.rotate,
-          duration: 1800,
-          easing: 'easeOutCubic',
+          duration: 2200,
+          easing: 'easeInOutQuad',
         });
       } catch (err) {
         console.error("Anime.js motion path animation error:", err);
@@ -99,37 +99,48 @@ export default function SuccessModal({ isOpen, onClose, language }: SuccessModal
             </h3>
 
             {/* Flight Path Animation View */}
-            <div className="relative w-72 h-40 my-3 flex items-center justify-center">
-              <div className="absolute w-36 h-36 bg-blue-50/60 rounded-full scale-90 animate-pulse -z-10" />
-              <svg className="w-full h-full overflow-visible" viewBox="0 0 300 160">
+            <div className="relative w-[288px] h-[160px] my-3">
+              <div className="absolute inset-0 m-auto w-36 h-36 bg-blue-50/60 rounded-full scale-90 animate-pulse pointer-events-none" />
+              
+              {/* SVG containing the dotted line path */}
+              <svg 
+                className="absolute inset-0 w-full h-full overflow-visible" 
+                viewBox="0 0 288 160"
+                fill="none"
+              >
                 <path
                   id="modal-flight-path"
-                  d="M 20 130 C 70 130, 110 100, 150 70 C 190 40, 230 20, 270 20"
-                  fill="none"
+                  d="M 30 110 C 90 110, 115 90, 125 70 C 140 40, 175 40, 155 80 C 140 110, 110 80, 130 50 C 145 30, 220 30, 260 80"
                   stroke="#3b82f6"
                   strokeWidth="2.5"
                   strokeLinecap="round"
                   strokeDasharray="4 6"
                   className="opacity-70"
                 />
-                <g id="modal-plane-group" className="origin-center">
-                  <g transform="translate(-12, -12) rotate(-45, 12, 12)">
-                    <svg
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="text-blue-600 drop-shadow-[0_2px_5px_rgba(59,130,246,0.35)]"
-                    >
-                      <path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3.5c-.5-.5-2.5 0-4 1.5L13.5 8.5 5.3 6.7c-.9-.2-1.6.3-1.6 1.2l.4 1.9 6.3 3.1-3.6 3.6L3.9 16c-.4-.1-.8.2-.8.6l-.1 1.2c0 .3.2.5.5.5l2.4-.2 1.8-2.9 3.6-3.6 3.1 6.3 1.9.4c.9 0 1.4-.7 1.2-1.6z" />
-                    </svg>
-                  </g>
-                </g>
               </svg>
+
+              {/* The plane is a absolute HTML div positioned at (0, 0) relative to the SVG container */}
+              <div 
+                id="modal-plane-container" 
+                className="absolute top-0 left-0 w-0 h-0 pointer-events-none"
+              >
+                {/* Offset the plane by -12px (-top-3 -left-3) so its center is exactly on the path point */}
+                <div className="absolute -top-3 -left-3 w-6 h-6 flex items-center justify-center -rotate-45">
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="text-blue-600 drop-shadow-[0_2px_5px_rgba(59,130,246,0.35)]"
+                  >
+                    <path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3.5c-.5-.5-2.5 0-4 1.5L13.5 8.5 5.3 6.7c-.9-.2-1.6.3-1.6 1.2l.4 1.9 6.3 3.1-3.6 3.6L3.9 16c-.4-.1-.8.2-.8.6l-.1 1.2c0 .3.2.5.5.5l2.4-.2 1.8-2.9 3.6-3.6 3.1 6.3 1.9.4c.9 0 1.4-.7 1.2-1.6z" />
+                  </svg>
+                </div>
+              </div>
             </div>
 
             <p className="text-slate-500 text-sm font-medium leading-relaxed px-2 mb-6">
