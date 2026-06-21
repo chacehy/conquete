@@ -648,12 +648,12 @@ export default function LandingPage() {
                     {tText(pkg.description)}
                   </p>
                   <div className="flex items-center justify-end pt-4 border-t border-slate-100 mt-auto">
-                    <button 
-                      onClick={() => openPackageDetails(pkg)}
-                      className="px-3.5 py-1.5 border border-blue-100 bg-blue-50 text-blue-600 text-xs font-bold rounded-lg hover:bg-blue-600 hover:text-white transition-all cursor-pointer"
+                    <Link
+                      href={`/international/${pkg.id}`}
+                      className="px-3.5 py-1.5 border border-blue-100 bg-blue-50 text-blue-600 text-xs font-bold rounded-lg hover:bg-blue-600 hover:text-white transition-all"
                     >
                       {t('lbl_decouvrir')}
-                    </button>
+                    </Link>
                   </div>
                 </div>
               </div>
