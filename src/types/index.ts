@@ -10,6 +10,7 @@ export interface Package {
   title: string;
   description: string;
   image_url: string;
+  images?: string[] | null;
   type: 'international' | 'omra';
   destinations: string;
   duration: string;
