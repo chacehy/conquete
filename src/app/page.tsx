@@ -339,7 +339,7 @@ export default function LandingPage() {
       {/* Booking Search Widget */}
       <section ref={widgetRef} className="max-w-7xl mx-auto px-6 w-full -mt-24 lg:-mt-28 z-30 relative">
         <div className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-slate-200/60 overflow-hidden">
-          <div className="grid grid-cols-2 md:grid-cols-3 bg-slate-50 border-b border-slate-200/80">
+          <div className="grid grid-cols-3 bg-slate-50 border-b border-slate-200/80">
             <button 
               onClick={() => setActiveSearchTab('billetterie')}
               className={`py-5 text-sm font-bold flex flex-col items-center gap-2 transition-all cursor-pointer ${
