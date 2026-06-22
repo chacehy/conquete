@@ -29,7 +29,7 @@ export default function LandingPage() {
   const [loading, setLoading] = useState(true);
 
   // Search Widget State
-  const [activeSearchTab, setActiveSearchTab] = useState<'billetterie' | 'sejours' | 'hotels' | 'carte'>('billetterie');
+  const [activeSearchTab, setActiveSearchTab] = useState<'billetterie' | 'sejours' | 'carte'>('billetterie');
 
   // Detail Drawer States
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -53,11 +53,6 @@ export default function LandingPage() {
   const [billLuggage, setBillLuggage] = useState('Cabin + Hold');
   const [billTransfer, setBillTransfer] = useState(false);
   const [billFlex, setBillFlex] = useState(false);
-
-  const [hotelCity, setHotelCity] = useState('');
-  const [hotelRoom, setHotelRoom] = useState('Double');
-  const [hotelCheckIn, setHotelCheckIn] = useState('');
-  const [hotelCheckOut, setHotelCheckOut] = useState('');
 
   // Drawer Booking Form States
   const [bookName, setBookName] = useState('');
@@ -86,11 +81,8 @@ export default function LandingPage() {
     loadPackages();
 
     const nextWeekStr = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-    const twoWeeksStr = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
     setBillDateDep(nextWeekStr);
-    setHotelCheckIn(nextWeekStr);
-    setHotelCheckOut(twoWeeksStr);
     setBookDate(nextWeekStr);
   }, []);
 
@@ -196,49 +188,6 @@ export default function LandingPage() {
       setBillArr('');
       setBillTransfer(false);
       setBillFlex(false);
-    }
-  };
-
-  const handleHotelsSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!hotelCity || !hotelCheckIn || !hotelCheckOut) {
-      addToast(t('toast_search_required'), 'error');
-      return;
-    }
-
-    const email = prompt(t('prompt_email_proposition')) || '';
-    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      addToast(language === 'ar' ? 'يرجى إدخال بريد إلكتروني صالح' : 'Veuillez entrer une adresse email valide', 'error');
-      return;
-    }
-
-    const name = prompt(t('prompt_name')) || "Client Hôtel";
-    const phone = prompt(t('prompt_phone'));
-
-    if (!phone) {
-      addToast(language === 'ar' ? 'يرجى إدخال رقم الهاتف' : 'Le numéro de téléphone est requis', 'error');
-      return;
-    }
-
-    const cleanPhone = phone.replace(/\s+/g, '');
-    const hasLetters = /[a-zA-Z]/.test(cleanPhone);
-    const isValidPhone = /^[+0-9\-()]+$/.test(cleanPhone) && cleanPhone.length >= 8;
-
-    if (hasLetters || !isValidPhone) {
-      addToast(language === 'ar' ? 'يرجى إدخال رقم هاتف صالح (أرقام فقط)' : 'Veuillez entrer un numéro de téléphone valide (chiffres uniquement)', 'error');
-      return;
-    }
-
-    const details = {
-      city: hotelCity,
-      room_type: hotelRoom,
-      date_checkin: hotelCheckIn,
-      date_checkout: hotelCheckOut
-    };
-
-    const ok = await submitLead('hotel', name, email, phone, details);
-    if (ok) {
-      setHotelCity('');
     }
   };
 
@@ -390,7 +339,7 @@ export default function LandingPage() {
       {/* Booking Search Widget */}
       <section ref={widgetRef} className="max-w-7xl mx-auto px-6 w-full -mt-24 lg:-mt-28 z-30 relative">
         <div className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-slate-200/60 overflow-hidden">
-          <div className="grid grid-cols-2 md:grid-cols-4 bg-slate-50 border-b border-slate-200/80">
+          <div className="grid grid-cols-2 md:grid-cols-3 bg-slate-50 border-b border-slate-200/80">
             <button 
               onClick={() => setActiveSearchTab('billetterie')}
               className={`py-5 text-sm font-bold flex flex-col items-center gap-2 transition-all cursor-pointer ${
@@ -413,18 +362,7 @@ export default function LandingPage() {
               <Compass className="w-5 h-5" />
               {t('tab_packages')}
             </button>
-            <button 
-              onClick={() => setActiveSearchTab('hotels')}
-              className={`py-5 text-sm font-bold flex flex-col items-center gap-2 transition-all cursor-pointer ${
-                activeSearchTab === 'hotels' 
-                  ? 'bg-white text-blue-600 border-b-2 border-blue-600 font-extrabold' 
-                  : 'text-slate-600 hover:text-blue-500 hover:bg-blue-50/20'
-              }`}
-            >
-              <Hotel className="w-5 h-5" />
-              {t('tab_hotels')}
-            </button>
-            <button 
+            <button
               onClick={() => setActiveSearchTab('carte')}
               className={`py-5 text-sm font-bold flex flex-col items-center gap-2 transition-all cursor-pointer ${
                 activeSearchTab === 'carte' 
@@ -531,61 +469,6 @@ export default function LandingPage() {
                   {t('lbl_voir_cat_int')}
                 </Link>
               </div>
-            )}
-
-            {activeSearchTab === 'hotels' && (
-              <form onSubmit={handleHotelsSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5">
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">{t('field_city')}</label>
-                    <input 
-                      type="text" 
-                      placeholder={t('placeholder_city')} 
-                      value={hotelCity}
-                      onChange={e => setHotelCity(e.target.value)}
-                      className="px-4 py-3 rounded-lg border border-slate-200 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all font-medium"
-                      required 
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">{t('field_room')}</label>
-                    <select 
-                      value={hotelRoom}
-                      onChange={e => setHotelRoom(e.target.value)}
-                      className="px-4 py-3 rounded-lg border border-slate-200 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all font-medium text-slate-700 bg-white"
-                    >
-                      <option value="Simple">{t('opt_room_single')}</option>
-                      <option value="Double">{t('opt_room_double')}</option>
-                      <option value="Triple">{t('opt_room_triple')}</option>
-                    </select>
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">{t('field_checkin')}</label>
-                    <input 
-                      type="date" 
-                      value={hotelCheckIn}
-                      onChange={e => setHotelCheckIn(e.target.value)}
-                      className="px-4 py-3 rounded-lg border border-slate-200 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all font-medium text-slate-700"
-                      required 
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">{t('field_checkout')}</label>
-                    <input 
-                      type="date" 
-                      value={hotelCheckOut}
-                      onChange={e => setHotelCheckOut(e.target.value)}
-                      className="px-4 py-3 rounded-lg border border-slate-200 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all font-medium text-slate-700"
-                      required 
-                    />
-                  </div>
-                </div>
-                <div className="text-right pt-2 border-t border-slate-100">
-                  <button type="submit" className="w-full sm:w-auto px-6 py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2 shadow-md cursor-pointer">
-                    {t('btn_search_hotels')}
-                  </button>
-                </div>
-              </form>
             )}
 
             {activeSearchTab === 'carte' && (

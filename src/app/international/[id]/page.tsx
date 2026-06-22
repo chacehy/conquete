@@ -62,7 +62,7 @@ export default function PackageDetailPage() {
   const addToast = (message: string, type: 'success' | 'error' = 'success') => {
     const tid = Date.now();
     setToasts(prev => [...prev, { id: tid, message, type }]);
-    setTimeout(() => setToasts(prev => prev.filter(t => t.id !== tid)), 4000);
+    setTimeout(() => setToasts(prev => prev.filter(toast => toast.id !== tid)), 4000);
   };
 
   const getImages = (): string[] => {
@@ -301,15 +301,9 @@ export default function PackageDetailPage() {
             {/* Description */}
             <section className="space-y-5">
               <SectionHeading>À Propos de ce Voyage</SectionHeading>
-              <div className="pl-4 space-y-4 text-slate-700 leading-relaxed text-[15px] font-medium">
-                {tText(pkg.description).split('\n\n').map((para, i) => (
-                  <p key={i}>
-                    {para.split('\n').map((line, j, arr) => (
-                      <span key={j}>{line}{j < arr.length - 1 && <br />}</span>
-                    ))}
-                  </p>
-                ))}
-              </div>
+              <p className="pl-4 text-slate-700 leading-relaxed text-[15px] font-medium whitespace-pre-wrap">
+                {tText(pkg.description)}
+              </p>
             </section>
 
             {/* Included / Excluded */}
@@ -416,13 +410,13 @@ export default function PackageDetailPage() {
                   <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1">{t('lbl_a_partir_de')}</p>
                   <div className="flex items-end gap-2">
                     <span className="text-4xl font-black text-white">
-                      {pkg.price_adult.toLocaleString('fr-FR')} €
+                      {pkg.price_adult.toLocaleString('fr-FR')} DA
                     </span>
                     <span className="text-slate-400 text-sm pb-1">/ {t('drawer_adults').split(' ')[0].toLowerCase()}</span>
                   </div>
                   {pkg.price_child > 0 && (
                     <p className="text-slate-400 text-[13px] mt-1.5">
-                      {pkg.price_child.toLocaleString('fr-FR')} € / {t('drawer_children').split(' ')[0].toLowerCase()}
+                      {pkg.price_child.toLocaleString('fr-FR')} DA / {t('drawer_children').split(' ')[0].toLowerCase()}
                     </p>
                   )}
                 </div>
@@ -447,14 +441,14 @@ export default function PackageDetailPage() {
 
                   <CounterRow
                     label={t('drawer_adults')}
-                    subLabel={`${pkg.price_adult.toLocaleString('fr-FR')} € / pers`}
+                    subLabel={`${pkg.price_adult.toLocaleString('fr-FR')} DA / pers`}
                     value={adults}
                     onDecrement={() => setAdults(a => Math.max(1, a - 1))}
                     onIncrement={() => setAdults(a => a + 1)}
                   />
                   <CounterRow
                     label={t('drawer_children')}
-                    subLabel={`${pkg.price_child.toLocaleString('fr-FR')} € / pers`}
+                    subLabel={`${pkg.price_child.toLocaleString('fr-FR')} DA / pers`}
                     value={children}
                     onDecrement={() => setChildren(c => Math.max(0, c - 1))}
                     onIncrement={() => setChildren(c => c + 1)}
@@ -468,7 +462,7 @@ export default function PackageDetailPage() {
                         {children > 0 ? ` + ${children} ${t('drawer_children').split(' ')[0]}` : ''}
                       </p>
                     </div>
-                    <span className="text-3xl font-black text-blue-600">{getTotal().toLocaleString('fr-FR')} €</span>
+                    <span className="text-3xl font-black text-blue-600">{getTotal().toLocaleString('fr-FR')} DA</span>
                   </div>
 
                   <AnimatePresence mode="wait">
