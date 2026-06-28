@@ -55,10 +55,13 @@ export default function AdminPage() {
   const [toasts, setToasts] = useState<{ id: number; message: string; type: 'success' | 'error' }[]>([]);
 
   useEffect(() => {
-    fetchAdminData();
-    // Get current admin user
     supabase.auth.getUser().then(({ data }) => {
-      if (data?.user?.email) setAdminEmail(data.user.email);
+      if (!data?.user) {
+        router.replace('/admin/login');
+        return;
+      }
+      if (data.user.email) setAdminEmail(data.user.email);
+      fetchAdminData();
     });
   }, []);
 
