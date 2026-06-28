@@ -1,15 +1,14 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Compass, Plane, Calendar, Hotel, Sliders, MapPin, 
-  Check, X, Sparkles, Send, ArrowRight, RefreshCw, AlertCircle
+import {
+  Compass, Plane, Calendar, Sliders, MapPin,
+  Check, X, Sparkles, Send, ArrowRight, RefreshCw, AlertCircle, Hotel
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { Package } from '@/types';
+import { Package, HotelOption } from '@/types';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { useLanguage } from '@/lib/LanguageContext';
@@ -36,6 +35,8 @@ export default function LandingPage() {
   const [selectedPackage, setSelectedPackage] = useState<Package | null>(null);
   const [calcAdults, setCalcAdults] = useState(2);
   const [calcChildren, setCalcChildren] = useState(0);
+  const [calcSelectedHotelIdx, setCalcSelectedHotelIdx] = useState(0);
+  const [calcSelectedDepartureDate, setCalcSelectedDepartureDate] = useState('');
   const [showDrawerBookingForm, setShowDrawerBookingForm] = useState(false);
   const bookingFormRef = useRef<HTMLDivElement>(null);
 
@@ -213,15 +214,22 @@ export default function LandingPage() {
       return;
     }
 
-    const price = (calcAdults * selectedPackage.price_adult) + (calcChildren * selectedPackage.price_child);
-
+    const price = getCalcTotal();
+    const hotel = getDrawerHotel();
+    const childBreakdown = getDrawerChildBreakdown();
     const details = {
       package_id: selectedPackage.id,
       package_title: selectedPackage.title,
       adults: calcAdults,
       children: calcChildren,
       total_price: price,
-      preferred_date: bookDate
+      preferred_date: calcSelectedDepartureDate || bookDate,
+      ...(hotel ? {
+        selected_hotel: hotel.name,
+        selected_hotel_stars: hotel.stars,
+        selected_departure_date: calcSelectedDepartureDate,
+        child_price_breakdown: childBreakdown,
+      } : {}),
     };
 
     const ok = await submitLead('package', bookName, bookEmail, bookPhone, details);
@@ -239,13 +247,33 @@ export default function LandingPage() {
     setSelectedPackage(pkg);
     setCalcAdults(2);
     setCalcChildren(0);
+    setCalcSelectedHotelIdx(0);
+    setCalcSelectedDepartureDate(pkg.departure_dates?.[0] || '');
     setShowDrawerBookingForm(false);
     setDrawerOpen(true);
   };
 
+  const getDrawerHotel = (): HotelOption | null => selectedPackage?.hotels?.[calcSelectedHotelIdx] ?? null;
+
+  const getDrawerChildBreakdown = () => {
+    const hotel = getDrawerHotel();
+    if (!hotel || calcChildren === 0) return [];
+    const tiers = hotel.child_prices;
+    if (tiers.length === 0) return [];
+    return Array.from({ length: calcChildren }, (_, i) => {
+      const tier = tiers[Math.min(i, tiers.length - 1)];
+      return { label: tier.label, price: tier.price };
+    });
+  };
+
   const getCalcTotal = () => {
     if (!selectedPackage) return 0;
-    return (calcAdults * selectedPackage.price_adult) + (calcChildren * selectedPackage.price_child);
+    const hotel = getDrawerHotel();
+    const adultPrice = hotel ? hotel.price_adult : selectedPackage.price_adult;
+    const childTotal = hotel
+      ? getDrawerChildBreakdown().reduce((s, t) => s + t.price, 0)
+      : calcChildren * selectedPackage.price_child;
+    return calcAdults * adultPrice + childTotal;
   };
 
   // Teasers filters
@@ -258,15 +286,19 @@ export default function LandingPage() {
 
       {/* Hero Section */}
       <section className="relative w-full h-[85vh] lg:h-[90vh] min-h-[600px] flex items-center overflow-hidden bg-slate-950">
-        {/* Background Image & Overlay */}
+        {/* Background Video & Overlay */}
         <div className="absolute inset-0 z-0">
-          <Image 
-            src="/conquete_hero.png" 
-            alt="Conquête Voyage Prestige" 
-            fill 
-            priority
-            className="object-cover opacity-50 select-none pointer-events-none"
-          />
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="none"
+            poster="/conquete_hero.png"
+            className="absolute inset-0 w-full h-full object-cover opacity-50 select-none pointer-events-none"
+          >
+            <source src="/hero_video.mp4" type="video/mp4" />
+          </video>
           <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/75 to-transparent z-10" />
           <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-slate-950 to-transparent z-10" />
         </div>
@@ -339,23 +371,23 @@ export default function LandingPage() {
       {/* Booking Search Widget */}
       <section ref={widgetRef} className="max-w-7xl mx-auto px-6 w-full -mt-24 lg:-mt-28 z-30 relative">
         <div className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-slate-200/60 overflow-hidden">
-          <div className="grid grid-cols-3 bg-slate-50 border-b border-slate-200/80">
-            <button 
+          <div className="grid grid-cols-2 md:grid-cols-3 bg-slate-50 border-b border-slate-200/80">
+            <button
               onClick={() => setActiveSearchTab('billetterie')}
               className={`py-5 text-sm font-bold flex flex-col items-center gap-2 transition-all cursor-pointer ${
-                activeSearchTab === 'billetterie' 
-                  ? 'bg-white text-blue-600 border-b-2 border-blue-600 font-extrabold' 
+                activeSearchTab === 'billetterie'
+                  ? 'bg-white text-blue-600 border-b-2 border-blue-600 font-extrabold'
                   : 'text-slate-600 hover:text-blue-500 hover:bg-blue-50/20'
               }`}
             >
               <Plane className="w-5 h-5" />
               {t('tab_flights')}
             </button>
-            <button 
+            <button
               onClick={() => setActiveSearchTab('sejours')}
               className={`py-5 text-sm font-bold flex flex-col items-center gap-2 transition-all cursor-pointer ${
-                activeSearchTab === 'sejours' 
-                  ? 'bg-white text-blue-600 border-b-2 border-blue-600 font-extrabold' 
+                activeSearchTab === 'sejours'
+                  ? 'bg-white text-blue-600 border-b-2 border-blue-600 font-extrabold'
                   : 'text-slate-600 hover:text-blue-500 hover:bg-blue-50/20'
               }`}
             >
@@ -365,8 +397,8 @@ export default function LandingPage() {
             <button
               onClick={() => setActiveSearchTab('carte')}
               className={`py-5 text-sm font-bold flex flex-col items-center gap-2 transition-all cursor-pointer ${
-                activeSearchTab === 'carte' 
-                  ? 'bg-white text-blue-600 border-b-2 border-blue-600 font-extrabold' 
+                activeSearchTab === 'carte'
+                  ? 'bg-white text-blue-600 border-b-2 border-blue-600 font-extrabold'
                   : 'text-slate-600 hover:text-blue-500 hover:bg-blue-50/20'
               }`}
             >
@@ -736,18 +768,55 @@ export default function LandingPage() {
                   </div>
                 )}
 
-                {selectedPackage.type === 'omra' && selectedPackage.departure_dates && (
+                {selectedPackage.departure_dates && selectedPackage.departure_dates.length > 0 && (
                   <div className="space-y-3">
                     <h4 className="font-heading text-base font-bold text-slate-900">{t('preferred_dates_list')}</h4>
                     <div className="flex gap-2.5 flex-wrap">
                       {selectedPackage.departure_dates.map((d, i) => {
                         const dateStr = new Date(d).toLocaleDateString(language === 'ar' ? 'ar-DZ' : 'fr-FR', { day: 'numeric', month: 'short' });
                         return (
-                          <span key={i} className="px-3.5 py-1.5 bg-blue-50 text-blue-700 font-extrabold text-xs rounded border border-blue-100 shadow-sm">
+                          <button
+                            key={i}
+                            type="button"
+                            onClick={() => { setCalcSelectedDepartureDate(d); setBookDate(d); }}
+                            className={`px-3.5 py-1.5 font-extrabold text-xs rounded border cursor-pointer transition-all ${
+                              calcSelectedDepartureDate === d
+                                ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                                : 'bg-blue-50 text-blue-700 border-blue-100 hover:border-blue-400'
+                            }`}
+                          >
                             {dateStr}
-                          </span>
+                          </button>
                         );
                       })}
+                    </div>
+                  </div>
+                )}
+
+                {(selectedPackage.hotels?.length ?? 0) > 0 && (
+                  <div className="space-y-3">
+                    <h4 className="font-heading text-base font-bold text-slate-900">Options d'Hébergement</h4>
+                    <div className="space-y-2">
+                      {selectedPackage.hotels!.map((hotel, hIdx) => (
+                        <button
+                          key={hIdx}
+                          type="button"
+                          onClick={() => setCalcSelectedHotelIdx(hIdx)}
+                          className={`w-full text-left px-4 py-3 rounded-xl border transition-all cursor-pointer ${
+                            calcSelectedHotelIdx === hIdx
+                              ? 'border-blue-500 bg-blue-50 ring-1 ring-blue-400'
+                              : 'border-slate-200 hover:border-slate-300 bg-white'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex-1 min-w-0">
+                              <p className="font-bold text-slate-900 text-sm truncate">{hotel.name}</p>
+                              <p className="text-[11px] text-slate-500">{hotel.location} · {hotel.formula} · {'★'.repeat(hotel.stars)}</p>
+                            </div>
+                            <p className="font-black text-blue-600 text-sm shrink-0">{hotel.price_adult.toLocaleString('fr-DZ')} DA</p>
+                          </div>
+                        </button>
+                      ))}
                     </div>
                   </div>
                 )}
@@ -757,24 +826,35 @@ export default function LandingPage() {
                   <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
                     <label className="text-xs font-bold text-slate-500 uppercase self-end">{t('drawer_adults')}</label>
                     <label className="text-xs font-bold text-slate-500 uppercase self-end">{t('drawer_children')}</label>
-                    <input 
-                      type="number" 
+                    <input
+                      type="number"
                       value={calcAdults}
                       onChange={e => setCalcAdults(Math.max(1, parseInt(e.target.value) || 1))}
                       min={1}
-                      className="px-3 py-2 border border-slate-200 rounded-lg outline-none focus:border-blue-500 bg-white font-bold w-full" 
+                      className="px-3 py-2 border border-slate-200 rounded-lg outline-none focus:border-blue-500 bg-white font-bold w-full"
                     />
-                    <input 
-                      type="number" 
+                    <input
+                      type="number"
                       value={calcChildren}
                       onChange={e => setCalcChildren(Math.max(0, parseInt(e.target.value) || 0))}
                       min={0}
-                      className="px-3 py-2 border border-slate-200 rounded-lg outline-none focus:border-blue-500 bg-white font-bold w-full" 
+                      className="px-3 py-2 border border-slate-200 rounded-lg outline-none focus:border-blue-500 bg-white font-bold w-full"
                     />
                   </div>
-                  <div className="flex items-center justify-end pt-4 border-t border-blue-100 mt-2">
+                  {calcChildren > 0 && getDrawerHotel() && (
+                    <div className="bg-white rounded-lg px-3 py-2 space-y-1">
+                      {getDrawerChildBreakdown().map((tier, i) => (
+                        <div key={i} className="flex justify-between text-xs">
+                          <span className="text-slate-500">Enfant {i + 1} — {tier.label}</span>
+                          <span className="font-bold text-slate-700">{tier.price.toLocaleString('fr-DZ')} DA</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <div className="flex items-center justify-between pt-4 border-t border-blue-100 mt-2">
+                    <span className="text-xl font-black text-blue-600">{getCalcTotal().toLocaleString('fr-DZ')} DA</span>
                     {!showDrawerBookingForm && (
-                      <button 
+                      <button
                         onClick={() => {
                           setShowDrawerBookingForm(true);
                           setTimeout(() => {

@@ -6,10 +6,10 @@ import { useParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Calendar, MapPin, Check, X, ChevronLeft, Clock, Hotel,
-  RefreshCw, AlertCircle, Sliders, Info,
+  RefreshCw, AlertCircle, Sliders, Info, Star, ExternalLink,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { Package } from '@/types';
+import { Package, HotelOption } from '@/types';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import SuccessModal from '@/components/SuccessModal';
@@ -28,6 +28,9 @@ export default function PackageDetailPage() {
 
   const [adults, setAdults] = useState(2);
   const [children, setChildren] = useState(0);
+  const [childTierSelections, setChildTierSelections] = useState<number[]>([]);
+  const [selectedHotelIdx, setSelectedHotelIdx] = useState(0);
+  const [selectedDepartureDate, setSelectedDepartureDate] = useState('');
 
   const [showBooking, setShowBooking] = useState(false);
   const [bookName, setBookName] = useState('');
@@ -49,6 +52,7 @@ export default function PackageDetailPage() {
           .single();
         if (error || !data) { setNotFound(true); setLoading(false); return; }
         setPkg(data);
+        if (data.departure_dates?.length) setSelectedDepartureDate(data.departure_dates[0]);
       } catch {
         setNotFound(true);
       } finally {
@@ -72,9 +76,27 @@ export default function PackageDetailPage() {
     return [fallback];
   };
 
+  const selectedHotel: HotelOption | null = pkg?.hotels?.[selectedHotelIdx] ?? null;
+
+  const getChildPriceBreakdown = (): { label: string; price: number }[] => {
+    if (!selectedHotel || children === 0) return [];
+    const tiers = selectedHotel.child_prices;
+    if (tiers.length === 0) return [];
+    return Array.from({ length: children }, (_, i) => {
+      const tierIdx = childTierSelections[i] ?? 0;
+      const tier = tiers[Math.min(tierIdx, tiers.length - 1)];
+      return { label: tier.label, price: tier.price };
+    });
+  };
+
   const getTotal = () => {
     if (!pkg) return 0;
-    return adults * pkg.price_adult + children * pkg.price_child;
+    const adultPrice = selectedHotel ? selectedHotel.price_adult : pkg.price_adult;
+    const childBreakdown = getChildPriceBreakdown();
+    const childTotal = selectedHotel
+      ? childBreakdown.reduce((s, t) => s + t.price, 0)
+      : children * pkg.price_child;
+    return adults * adultPrice + childTotal;
   };
 
   const handleReservation = async (e: React.FormEvent) => {
@@ -100,6 +122,7 @@ export default function PackageDetailPage() {
 
     setSubmitting(true);
     try {
+      const childBreakdown = getChildPriceBreakdown();
       const { error } = await supabase.from('leads').insert([{
         type: 'package',
         name: bookName,
@@ -112,7 +135,13 @@ export default function PackageDetailPage() {
           adults,
           children,
           total_price: getTotal(),
-          preferred_date: bookDate,
+          preferred_date: selectedDepartureDate || bookDate,
+          ...(selectedHotel ? {
+            selected_hotel: selectedHotel.name,
+            selected_hotel_stars: selectedHotel.stars,
+            selected_departure_date: selectedDepartureDate,
+            child_price_breakdown: childBreakdown,
+          } : {}),
         },
       }]);
       if (error) throw error;
@@ -306,6 +335,75 @@ export default function PackageDetailPage() {
               </p>
             </section>
 
+            {/* Hotel Options Showcase */}
+            {(pkg.hotels?.length ?? 0) > 0 && (
+              <section className="space-y-5" id="hotel-options">
+                <SectionHeading>Options d'Hébergement</SectionHeading>
+                <div className="pl-4 space-y-4">
+                  {pkg.hotels!.map((hotel, hIdx) => (
+                    <div
+                      key={hIdx}
+                      className={`rounded-2xl border p-5 space-y-4 transition-all ${
+                        selectedHotelIdx === hIdx
+                          ? 'border-blue-400 bg-blue-50/40 shadow-sm shadow-blue-100'
+                          : 'border-slate-200 bg-white'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-bold text-slate-900 text-[15px] leading-snug">{hotel.name}</span>
+                            <span className="text-amber-500 text-xs font-bold">{'★'.repeat(hotel.stars)}</span>
+                          </div>
+                          <p className="text-xs text-slate-500 mt-0.5">{hotel.location} · {hotel.formula}</p>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <p className="text-lg font-black text-blue-600">{hotel.price_adult.toLocaleString('fr-DZ')} DA</p>
+                          <p className="text-[10px] text-slate-400 font-semibold">/ adulte</p>
+                        </div>
+                      </div>
+                      {hotel.amenities.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5">
+                          {hotel.amenities.map((a, i) => (
+                            <span key={i} className="px-2.5 py-1 bg-slate-100 text-slate-600 text-[11px] font-semibold rounded-full">
+                              {a}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      <div className="flex items-center justify-between gap-3 pt-1">
+                        {hotel.reference_url ? (
+                          <a
+                            href={hotel.reference_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-1 text-[11px] text-blue-500 font-semibold hover:underline"
+                          >
+                            <ExternalLink className="w-3 h-3" /> Voir les avis
+                          </a>
+                        ) : <span />}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedHotelIdx(hIdx);
+                            setChildTierSelections(Array(children).fill(0));
+                            document.getElementById('sidebar-calculator')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                          }}
+                          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                            selectedHotelIdx === hIdx
+                              ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
+                              : 'bg-slate-100 text-slate-700 hover:bg-blue-50 hover:text-blue-600'
+                          }`}
+                        >
+                          {selectedHotelIdx === hIdx ? '✓ Sélectionné' : 'Choisir cet hôtel'}
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+
             {/* Included / Excluded */}
             {((pkg.included?.length ?? 0) > 0 || (pkg.excluded?.length ?? 0) > 0) && (
               <section className="space-y-5">
@@ -402,7 +500,7 @@ export default function PackageDetailPage() {
 
           {/* ── RIGHT SIDEBAR ── */}
           <div className="lg:w-[380px] xl:w-[420px] shrink-0">
-            <div className="sticky top-24 space-y-4">
+            <div className="sticky top-24 space-y-4" id="sidebar-calculator">
 
               {/* Price card */}
               <div className="bg-white rounded-2xl border border-slate-200/60 shadow-lg overflow-hidden">
@@ -410,13 +508,13 @@ export default function PackageDetailPage() {
                   <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1">{t('lbl_a_partir_de')}</p>
                   <div className="flex items-end gap-2">
                     <span className="text-4xl font-black text-white">
-                      {pkg.price_adult.toLocaleString('fr-FR')} DA
+                      {(selectedHotel?.price_adult ?? pkg.price_adult).toLocaleString('fr-DZ')} DA
                     </span>
-                    <span className="text-slate-400 text-sm pb-1">/ {t('drawer_adults').split(' ')[0].toLowerCase()}</span>
+                    <span className="text-slate-400 text-sm pb-1">/ adulte</span>
                   </div>
-                  {pkg.price_child > 0 && (
+                  {(selectedHotel?.child_prices[0]?.price ?? pkg.price_child) > 0 && (
                     <p className="text-slate-400 text-[13px] mt-1.5">
-                      {pkg.price_child.toLocaleString('fr-FR')} DA / {t('drawer_children').split(' ')[0].toLowerCase()}
+                      {(selectedHotel?.child_prices[0]?.price ?? pkg.price_child).toLocaleString('fr-DZ')} DA / enfant
                     </p>
                   )}
                 </div>
@@ -425,13 +523,73 @@ export default function PackageDetailPage() {
                 <div className="px-7 py-5 border-b border-slate-100 space-y-4">
                   <QuickFact icon={<Clock className="w-4 h-4 text-blue-600" />} label={t('lbl_days')} value={pkg.duration} />
                   <QuickFact icon={<MapPin className="w-4 h-4 text-blue-600" />} label={t('dest_count')} value={destinations.join(', ')} />
-                  {pkg.hotel_proximity && (
-                    <QuickFact icon={<Hotel className="w-4 h-4 text-blue-600" />} label="Hôtel" value={`${t('drawer_hotel_proximity_prefix')} ${pkg.hotel_proximity} ${t('haram_proximity')}`} />
+                  {selectedHotel && (
+                    <QuickFact
+                      icon={<Hotel className="w-4 h-4 text-blue-600" />}
+                      label="Hébergement"
+                      value={`${selectedHotel.name} ${'★'.repeat(selectedHotel.stars)}`}
+                    />
                   )}
                   {pkg.season && (
                     <QuickFact icon={<Calendar className="w-4 h-4 text-blue-600" />} label="Saison" value={pkg.season} />
                   )}
                 </div>
+
+                {/* Hotel selector (when hotels exist) */}
+                {(pkg.hotels?.length ?? 0) > 1 && (
+                  <div className="px-7 py-5 border-b border-slate-100 space-y-3">
+                    <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                      <Star className="w-3.5 h-3.5 text-amber-400" /> Choisir votre hôtel
+                    </h3>
+                    <div className="space-y-2">
+                      {pkg.hotels!.map((hotel, hIdx) => (
+                        <button
+                          key={hIdx}
+                          type="button"
+                          onClick={() => { setSelectedHotelIdx(hIdx); setChildTierSelections(Array(children).fill(0)); }}
+                          className={`w-full text-left px-4 py-3 rounded-xl border transition-all cursor-pointer ${
+                            selectedHotelIdx === hIdx
+                              ? 'border-blue-500 bg-blue-50 ring-1 ring-blue-400'
+                              : 'border-slate-200 hover:border-slate-300 bg-white'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex-1 min-w-0">
+                              <p className="font-bold text-slate-900 text-sm truncate">{hotel.name}</p>
+                              <p className="text-[11px] text-slate-500">{hotel.location} · {hotel.formula} · {'★'.repeat(hotel.stars)}</p>
+                            </div>
+                            <p className="font-black text-blue-600 text-sm shrink-0">{hotel.price_adult.toLocaleString('fr-DZ')} DA</p>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Departure date selector */}
+                {(pkg.departure_dates?.length ?? 0) > 0 && (
+                  <div className="px-7 py-5 border-b border-slate-100 space-y-3">
+                    <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                      <Calendar className="w-3.5 h-3.5 text-blue-500" /> Date de départ
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                      {pkg.departure_dates!.map((date, i) => (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() => { setSelectedDepartureDate(date); setBookDate(date); }}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all cursor-pointer ${
+                            selectedDepartureDate === date
+                              ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                              : 'bg-white text-slate-700 border-slate-200 hover:border-blue-300'
+                          }`}
+                        >
+                          {new Date(date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: '2-digit' })}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* Price calculator */}
                 <div className="px-7 py-6 space-y-5">
@@ -441,28 +599,80 @@ export default function PackageDetailPage() {
 
                   <CounterRow
                     label={t('drawer_adults')}
-                    subLabel={`${pkg.price_adult.toLocaleString('fr-FR')} DA / pers`}
+                    subLabel={`${(selectedHotel?.price_adult ?? pkg.price_adult).toLocaleString('fr-DZ')} DA / pers`}
                     value={adults}
                     onDecrement={() => setAdults(a => Math.max(1, a - 1))}
                     onIncrement={() => setAdults(a => a + 1)}
                   />
                   <CounterRow
-                    label={t('drawer_children')}
-                    subLabel={`${pkg.price_child.toLocaleString('fr-FR')} DA / pers`}
+                    label={selectedHotel?.child_max_age
+                      ? `Enfants (moins de ${selectedHotel.child_max_age} ans)`
+                      : t('drawer_children')}
+                    subLabel={selectedHotel && selectedHotel.child_prices.length > 0
+                      ? selectedHotel.child_prices.length > 1
+                        ? 'Choisissez la tranche d\'âge'
+                        : `${selectedHotel.child_prices[0].price.toLocaleString('fr-DZ')} DA / enfant`
+                      : `${pkg.price_child.toLocaleString('fr-DZ')} DA / pers`}
                     value={children}
-                    onDecrement={() => setChildren(c => Math.max(0, c - 1))}
-                    onIncrement={() => setChildren(c => c + 1)}
+                    onDecrement={() => {
+                      if (children <= 0) return;
+                      setChildren(c => Math.max(0, c - 1));
+                      setChildTierSelections(prev => prev.slice(0, -1));
+                    }}
+                    onIncrement={() => {
+                      setChildren(c => c + 1);
+                      setChildTierSelections(prev => [...prev, 0]);
+                    }}
                   />
+
+                  {/* Child price breakdown with per-child tier selector */}
+                  {children > 0 && selectedHotel && (
+                    <div className="bg-slate-50 rounded-xl px-4 py-3 space-y-2">
+                      {Array.from({ length: children }, (_, i) => {
+                        const tiers = selectedHotel.child_prices;
+                        if (tiers.length <= 1) {
+                          const tier = tiers[0];
+                          return (
+                            <div key={i} className="flex items-center justify-between text-xs">
+                              <span className="text-slate-500 font-medium">Enfant {i + 1}{tier ? ` — ${tier.label}` : ''}</span>
+                              <span className="font-bold text-slate-700">{tier ? tier.price.toLocaleString('fr-DZ') : 0} DA</span>
+                            </div>
+                          );
+                        }
+                        const selectedTierIdx = childTierSelections[i] ?? 0;
+                        const selectedTier = tiers[Math.min(selectedTierIdx, tiers.length - 1)];
+                        return (
+                          <div key={i} className="flex items-center gap-2 text-xs">
+                            <span className="text-slate-500 font-medium shrink-0">Enfant {i + 1}</span>
+                            <select
+                              value={selectedTierIdx}
+                              onChange={e => {
+                                const newSels = [...childTierSelections];
+                                newSels[i] = parseInt(e.target.value);
+                                setChildTierSelections(newSels);
+                              }}
+                              className="flex-1 px-2 py-1 border border-slate-200 rounded-lg bg-white text-slate-700 text-[11px] cursor-pointer outline-none focus:border-blue-400"
+                            >
+                              {tiers.map((tier, tIdx) => (
+                                <option key={tIdx} value={tIdx}>{tier.label}</option>
+                              ))}
+                            </select>
+                            <span className="font-bold text-slate-700 shrink-0">{selectedTier.price.toLocaleString('fr-DZ')} DA</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
 
                   <div className="flex items-end justify-between pt-4 border-t border-slate-100">
                     <div>
                       <p className="text-[10px] font-bold uppercase text-slate-400 tracking-wide">{t('drawer_total')}</p>
                       <p className="text-xs text-slate-400 mt-0.5">
-                        {adults} {t('drawer_adults').split(' ')[0]}
-                        {children > 0 ? ` + ${children} ${t('drawer_children').split(' ')[0]}` : ''}
+                        {adults} adulte{adults > 1 ? 's' : ''}
+                        {children > 0 ? ` + ${children} enfant${children > 1 ? 's' : ''}` : ''}
                       </p>
                     </div>
-                    <span className="text-3xl font-black text-blue-600">{getTotal().toLocaleString('fr-FR')} DA</span>
+                    <span className="text-3xl font-black text-blue-600">{getTotal().toLocaleString('fr-DZ')} DA</span>
                   </div>
 
                   <AnimatePresence mode="wait">
@@ -486,6 +696,12 @@ export default function PackageDetailPage() {
                         className="space-y-3 pt-4 border-t border-slate-100"
                       >
                         <h4 className="font-heading font-bold text-slate-900 text-sm">{t('drawer_book_title')}</h4>
+                        {selectedHotel && (
+                          <div className="text-xs bg-blue-50 border border-blue-100 rounded-lg px-3 py-2 text-blue-700 font-semibold">
+                            {selectedHotel.name} {'★'.repeat(selectedHotel.stars)}
+                            {selectedDepartureDate && ` · Départ ${new Date(selectedDepartureDate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}`}
+                          </div>
+                        )}
                         <form onSubmit={handleReservation} className="space-y-3">
                           <input
                             type="text"
@@ -510,16 +726,18 @@ export default function PackageDetailPage() {
                             className="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500 transition-colors"
                             required
                           />
-                          <div>
-                            <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wide block mb-1">{t('drawer_preferred_date')}</label>
-                            <input
-                              type="date"
-                              value={bookDate}
-                              onChange={e => setBookDate(e.target.value)}
-                              className="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500 transition-colors text-slate-600"
-                              required
-                            />
-                          </div>
+                          {!selectedDepartureDate && (
+                            <div>
+                              <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wide block mb-1">{t('drawer_preferred_date')}</label>
+                              <input
+                                type="date"
+                                value={bookDate}
+                                onChange={e => setBookDate(e.target.value)}
+                                className="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500 transition-colors text-slate-600"
+                                required
+                              />
+                            </div>
+                          )}
                           <div className="flex gap-2 pt-1">
                             <button
                               type="button"

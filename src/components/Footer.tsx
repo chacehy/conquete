@@ -47,24 +47,24 @@ export default function Footer() {
           <h4 className="text-white font-extrabold text-sm uppercase tracking-wider">{t('footer_contact_title')}</h4>
           <ul className="space-y-2.5 text-sm font-semibold">
             <li className="flex items-start gap-2">
-              <MapPin className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" /> 
-              <span className="leading-relaxed">{t('footer_address')}</span>
-            </li>
-            <li className="flex items-center gap-2">
-              <Phone className="w-4 h-4 text-blue-500 shrink-0" />
-              <span>Tél : <a href="tel:043271497" className="hover:text-white transition-colors">043 27 14 97</a></span>
-            </li>
-            <li className="flex items-center gap-2">
-              <Phone className="w-4 h-4 text-blue-500 shrink-0" />
-              <span>Fax : 043 27 15 00</span>
+              <MapPin className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
+              <div className="flex flex-col gap-1">
+                <span className="text-xs text-slate-500 uppercase font-black tracking-wider">Tlemcen</span>
+                <span className="leading-relaxed">{t('footer_address_tlemcen')}</span>
+                <span className="text-xs text-slate-500 uppercase font-black tracking-wider mt-1">Oran</span>
+                <span className="leading-relaxed">{t('footer_address_oran')}</span>
+              </div>
             </li>
             <li className="flex items-start gap-2">
               <Phone className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
               <div className="flex flex-col">
-                <span className="text-xs text-slate-500 uppercase font-black tracking-wider mb-0.5">Mobiles</span>
-                <a href="tel:0798961836" className="hover:text-white transition-colors">0798 96 18 36</a>
-                <a href="tel:0550404320" className="hover:text-white transition-colors">0550 40 43 20</a>
-                <a href="tel:0560915833" className="hover:text-white transition-colors">0560 91 58 33</a>
+                <span className="text-xs text-slate-500 uppercase font-black tracking-wider mb-0.5">Tlemcen</span>
+                <a href="tel:0550404320" className="hover:text-white transition-colors">0550 404 320</a>
+                <a href="tel:0770204119" className="hover:text-white transition-colors">0770 204 119</a>
+                <a href="tel:0560916367" className="hover:text-white transition-colors">0560 916 367</a>
+                <a href="tel:0770052213" className="hover:text-white transition-colors">0770 052 213</a>
+                <span className="text-xs text-slate-500 uppercase font-black tracking-wider mt-1.5 mb-0.5">Oran</span>
+                <a href="tel:0540242384" className="hover:text-white transition-colors">0540 242 384</a>
               </div>
             </li>
             <li className="flex items-center gap-2">

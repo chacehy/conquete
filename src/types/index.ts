@@ -1,3 +1,21 @@
+export interface ChildPriceTier {
+  label: string;
+  price: number;
+}
+
+export interface HotelOption {
+  name: string;
+  stars: number;
+  location: string;
+  formula: string;
+  price_adult: number;
+  child_prices: ChildPriceTier[];
+  amenities: string[];
+  child_max_age?: number;
+  reference_url?: string;
+  image_url?: string;
+}
+
 export interface ItineraryDay {
   day: number;
   title: string;
@@ -24,6 +42,7 @@ export interface Package {
   hotel_proximity?: string | null;
   accompaniment?: string | null;
   is_signature?: boolean;
+  hotels?: HotelOption[] | null;
 }
 
 export interface Lead {
@@ -53,6 +72,10 @@ export interface Lead {
     children?: number;
     total_price?: number;
     preferred_date?: string;
+    selected_hotel?: string;
+    selected_hotel_stars?: number;
+    selected_departure_date?: string;
+    child_price_breakdown?: { label: string; price: number }[];
     destinations?: string;
     duration?: string;
     profile?: string;

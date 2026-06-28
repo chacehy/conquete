@@ -7,7 +7,7 @@ import {
   Calendar, Hotel, Check, X, Sliders, RefreshCw, AlertCircle, Sparkles
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { Package } from '@/types';
+import { Package, HotelOption } from '@/types';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { useLanguage } from '@/lib/LanguageContext';
@@ -24,6 +24,9 @@ export default function OmraPage() {
   const [selectedPackage, setSelectedPackage] = useState<Package | null>(null);
   const [calcAdults, setCalcAdults] = useState(2);
   const [calcChildren, setCalcChildren] = useState(0);
+  const [calcChildTierSelections, setCalcChildTierSelections] = useState<number[]>([]);
+  const [calcSelectedHotelIdx, setCalcSelectedHotelIdx] = useState(0);
+  const [calcSelectedDepartureDate, setCalcSelectedDepartureDate] = useState('');
   const [showDrawerBookingForm, setShowDrawerBookingForm] = useState(false);
   const bookingFormRef = useRef<HTMLDivElement>(null);
 
@@ -74,13 +77,35 @@ export default function OmraPage() {
     setSelectedPackage(pkg);
     setCalcAdults(2);
     setCalcChildren(0);
+    setCalcChildTierSelections([]);
+    setCalcSelectedHotelIdx(0);
+    setCalcSelectedDepartureDate(pkg.departure_dates?.[0] || '');
     setShowDrawerBookingForm(false);
     setDrawerOpen(true);
   };
 
+  const getDrawerHotel = (): HotelOption | null => selectedPackage?.hotels?.[calcSelectedHotelIdx] ?? null;
+
+  const getDrawerChildBreakdown = () => {
+    const hotel = getDrawerHotel();
+    if (!hotel || calcChildren === 0) return [];
+    const tiers = hotel.child_prices;
+    if (tiers.length === 0) return [];
+    return Array.from({ length: calcChildren }, (_, i) => {
+      const tierIdx = calcChildTierSelections[i] ?? 0;
+      const tier = tiers[Math.min(tierIdx, tiers.length - 1)];
+      return { label: tier.label, price: tier.price };
+    });
+  };
+
   const getCalcTotal = () => {
     if (!selectedPackage) return 0;
-    return (calcAdults * selectedPackage.price_adult) + (calcChildren * selectedPackage.price_child);
+    const hotel = getDrawerHotel();
+    const adultPrice = hotel ? hotel.price_adult : selectedPackage.price_adult;
+    const childTotal = hotel
+      ? getDrawerChildBreakdown().reduce((s, t) => s + t.price, 0)
+      : calcChildren * selectedPackage.price_child;
+    return calcAdults * adultPrice + childTotal;
   };
 
   const handleReservation = async (e: React.FormEvent) => {
@@ -105,13 +130,21 @@ export default function OmraPage() {
     }
 
     const price = getCalcTotal();
+    const hotel = getDrawerHotel();
+    const childBreakdown = getDrawerChildBreakdown();
     const details = {
       package_id: selectedPackage.id,
       package_title: selectedPackage.title,
       adults: calcAdults,
       children: calcChildren,
       total_price: price,
-      preferred_date: bookDate
+      preferred_date: calcSelectedDepartureDate || bookDate,
+      ...(hotel ? {
+        selected_hotel: hotel.name,
+        selected_hotel_stars: hotel.stars,
+        selected_departure_date: calcSelectedDepartureDate,
+        child_price_breakdown: childBreakdown,
+      } : {}),
     };
 
     try {
@@ -383,18 +416,55 @@ export default function OmraPage() {
                   </div>
                 )}
 
-                {selectedPackage.departure_dates && (
+                {selectedPackage.departure_dates && selectedPackage.departure_dates.length > 0 && (
                   <div className="space-y-3">
                     <h4 className="font-heading text-base font-bold text-slate-900">{t('preferred_dates_list')}</h4>
                     <div className="flex gap-2.5 flex-wrap">
                       {selectedPackage.departure_dates.map((d, i) => {
                         const dateStr = new Date(d).toLocaleDateString(language === 'ar' ? 'ar-DZ' : 'fr-FR', { day: 'numeric', month: 'short' });
                         return (
-                          <span key={i} className="px-3.5 py-1.5 bg-blue-50 text-blue-700 font-extrabold text-xs rounded border border-blue-100 shadow-sm">
+                          <button
+                            key={i}
+                            type="button"
+                            onClick={() => { setCalcSelectedDepartureDate(d); setBookDate(d); }}
+                            className={`px-3.5 py-1.5 font-extrabold text-xs rounded border cursor-pointer transition-all ${
+                              calcSelectedDepartureDate === d
+                                ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                                : 'bg-blue-50 text-blue-700 border-blue-100 hover:border-blue-400'
+                            }`}
+                          >
                             {dateStr}
-                          </span>
+                          </button>
                         );
                       })}
+                    </div>
+                  </div>
+                )}
+
+                {(selectedPackage.hotels?.length ?? 0) > 0 && (
+                  <div className="space-y-3">
+                    <h4 className="font-heading text-base font-bold text-slate-900">Options d'Hébergement</h4>
+                    <div className="space-y-2">
+                      {selectedPackage.hotels!.map((hotel, hIdx) => (
+                        <button
+                          key={hIdx}
+                          type="button"
+                          onClick={() => { setCalcSelectedHotelIdx(hIdx); setCalcChildTierSelections(Array(calcChildren).fill(0)); }}
+                          className={`w-full text-left px-4 py-3 rounded-xl border transition-all cursor-pointer ${
+                            calcSelectedHotelIdx === hIdx
+                              ? 'border-blue-500 bg-blue-50 ring-1 ring-blue-400'
+                              : 'border-slate-200 hover:border-slate-300 bg-white'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex-1 min-w-0">
+                              <p className="font-bold text-slate-900 text-sm truncate">{hotel.name}</p>
+                              <p className="text-[11px] text-slate-500">{hotel.location} · {hotel.formula} · {'★'.repeat(hotel.stars)}</p>
+                            </div>
+                            <p className="font-black text-blue-600 text-sm shrink-0">{hotel.price_adult.toLocaleString('fr-DZ')} DA</p>
+                          </div>
+                        </button>
+                      ))}
                     </div>
                   </div>
                 )}
@@ -404,24 +474,71 @@ export default function OmraPage() {
                   <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
                     <label className="text-xs font-bold text-slate-500 uppercase self-end">{t('drawer_adults')}</label>
                     <label className="text-xs font-bold text-slate-500 uppercase self-end">{t('drawer_children')}</label>
-                    <input 
-                      type="number" 
+                    <input
+                      type="number"
                       value={calcAdults}
                       onChange={e => setCalcAdults(Math.max(1, parseInt(e.target.value) || 1))}
                       min={1}
-                      className="px-3 py-2 border border-slate-200 rounded-lg outline-none focus:border-blue-500 bg-white font-bold w-full" 
+                      className="px-3 py-2 border border-slate-200 rounded-lg outline-none focus:border-blue-500 bg-white font-bold w-full"
                     />
-                    <input 
-                      type="number" 
+                    <input
+                      type="number"
                       value={calcChildren}
-                      onChange={e => setCalcChildren(Math.max(0, parseInt(e.target.value) || 0))}
+                      onChange={e => {
+                        const newCount = Math.max(0, parseInt(e.target.value) || 0);
+                        setCalcChildren(newCount);
+                        setCalcChildTierSelections(prev =>
+                          newCount > prev.length
+                            ? [...prev, ...Array(newCount - prev.length).fill(0)]
+                            : prev.slice(0, newCount)
+                        );
+                      }}
                       min={0}
-                      className="px-3 py-2 border border-slate-200 rounded-lg outline-none focus:border-blue-500 bg-white font-bold w-full" 
+                      className="px-3 py-2 border border-slate-200 rounded-lg outline-none focus:border-blue-500 bg-white font-bold w-full"
                     />
                   </div>
-                  <div className="flex items-center justify-end pt-4 border-t border-blue-100 mt-2">
+                  {calcChildren > 0 && getDrawerHotel() && (
+                    <div className="bg-white rounded-lg px-3 py-2 space-y-1.5">
+                      {Array.from({ length: calcChildren }, (_, i) => {
+                        const hotel = getDrawerHotel()!;
+                        const tiers = hotel.child_prices;
+                        if (tiers.length <= 1) {
+                          const tier = tiers[0];
+                          return (
+                            <div key={i} className="flex justify-between text-xs">
+                              <span className="text-slate-500">Enfant {i + 1}{tier ? ` — ${tier.label}` : ''}</span>
+                              <span className="font-bold text-slate-700">{tier ? tier.price.toLocaleString('fr-DZ') : 0} DA</span>
+                            </div>
+                          );
+                        }
+                        const selectedTierIdx = calcChildTierSelections[i] ?? 0;
+                        const selectedTier = tiers[Math.min(selectedTierIdx, tiers.length - 1)];
+                        return (
+                          <div key={i} className="flex items-center gap-2 text-xs">
+                            <span className="text-slate-500 shrink-0">Enfant {i + 1}</span>
+                            <select
+                              value={selectedTierIdx}
+                              onChange={e => {
+                                const newSels = [...calcChildTierSelections];
+                                newSels[i] = parseInt(e.target.value);
+                                setCalcChildTierSelections(newSels);
+                              }}
+                              className="flex-1 px-1.5 py-1 border border-slate-200 rounded-lg bg-white text-slate-700 text-[11px] cursor-pointer outline-none focus:border-blue-400"
+                            >
+                              {tiers.map((tier, tIdx) => (
+                                <option key={tIdx} value={tIdx}>{tier.label}</option>
+                              ))}
+                            </select>
+                            <span className="font-bold text-slate-700 shrink-0">{selectedTier.price.toLocaleString('fr-DZ')} DA</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                  <div className="flex items-center justify-between pt-4 border-t border-blue-100 mt-2">
+                    <span className="text-xl font-black text-blue-600">{getCalcTotal().toLocaleString('fr-DZ')} DA</span>
                     {!showDrawerBookingForm && (
-                      <button 
+                      <button
                         onClick={() => {
                           setShowDrawerBookingForm(true);
                           setTimeout(() => {

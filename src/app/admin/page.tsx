@@ -3,13 +3,13 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { 
-  Sliders, Inbox, Clock, CheckCircle2, FileSpreadsheet, Plus, 
-  Trash2, Edit3, X, Save, AlertCircle, Check, ArrowLeft, RefreshCw, 
-  PlusCircle, MinusCircle, ShieldCheck, HelpCircle, Eye, Star, LogOut
+import {
+  Sliders, Inbox, Clock, CheckCircle2, FileSpreadsheet, Plus,
+  Trash2, Edit3, X, Save, AlertCircle, Check, ArrowLeft, RefreshCw,
+  PlusCircle, MinusCircle, ShieldCheck, Star, LogOut, Search
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { Package, Lead, ItineraryDay } from '@/types';
+import { Package, Lead, ItineraryDay, HotelOption, ChildPriceTier } from '@/types';
 
 export default function AdminPage() {
   const router = useRouter();
@@ -22,6 +22,7 @@ export default function AdminPage() {
   // Filters
   const [leadTypeFilter, setLeadTypeFilter] = useState('all');
   const [leadStatusFilter, setLeadStatusFilter] = useState('all');
+  const [leadSearchQuery, setLeadSearchQuery] = useState('');
 
   // Modal package states
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -46,6 +47,9 @@ export default function AdminPage() {
 
   // Itinerary
   const [itineraryDays, setItineraryDays] = useState<ItineraryDay[]>([]);
+
+  // Hotel options
+  const [hotelOptions, setHotelOptions] = useState<HotelOption[]>([]);
 
   // Toasts
   const [toasts, setToasts] = useState<{ id: number; message: string; type: 'success' | 'error' }[]>([]);
@@ -192,6 +196,7 @@ export default function AdminPage() {
     setPkgProximity('');
     setPkgDepartureDates('');
     setItineraryDays([{ day: 1, title: '', desc: '' }]);
+    setHotelOptions([]);
     setIsModalOpen(true);
   };
 
@@ -210,17 +215,18 @@ export default function AdminPage() {
     setPkgAccompaniment(pkg.accompaniment || '');
     setPkgIsSignature(pkg.is_signature || false);
     
+    setPkgDepartureDates(pkg.departure_dates ? pkg.departure_dates.join(', ') : '');
+
     if (pkg.type === 'omra') {
       setPkgSeason(pkg.season || 'Ramadan');
       setPkgProximity(pkg.hotel_proximity || '');
-      setPkgDepartureDates(pkg.departure_dates ? pkg.departure_dates.join(', ') : '');
     } else {
       setPkgSeason('Ramadan');
       setPkgProximity('');
-      setPkgDepartureDates('');
     }
 
     setItineraryDays(pkg.itinerary || [{ day: 1, title: '', desc: '' }]);
+    setHotelOptions(pkg.hotels || []);
     setIsModalOpen(true);
   };
 
@@ -260,11 +266,59 @@ export default function AdminPage() {
     );
   };
 
+  const addHotelOption = () => {
+    setHotelOptions(prev => [...prev, {
+      name: '', stars: 3, location: '', formula: 'All Inclusive',
+      price_adult: 0, child_prices: [{ label: 'Enfant (-12 ans)', price: 0 }],
+      amenities: [], child_max_age: 12, reference_url: '', image_url: ''
+    }]);
+  };
+
+  const removeHotelOption = (idx: number) => {
+    setHotelOptions(prev => prev.filter((_, i) => i !== idx));
+  };
+
+  const updateHotelOption = (idx: number, field: keyof HotelOption, val: unknown) => {
+    setHotelOptions(prev => prev.map((h, i) => i === idx ? { ...h, [field]: val } : h));
+  };
+
+  const addChildTier = (hotelIdx: number) => {
+    setHotelOptions(prev => prev.map((h, i) => i === hotelIdx
+      ? { ...h, child_prices: [...h.child_prices, { label: `Enfant ${h.child_prices.length + 1}`, price: 0 }] }
+      : h
+    ));
+  };
+
+  const removeChildTier = (hotelIdx: number, tierIdx: number) => {
+    setHotelOptions(prev => prev.map((h, i) => i === hotelIdx
+      ? { ...h, child_prices: h.child_prices.filter((_, ti) => ti !== tierIdx) }
+      : h
+    ));
+  };
+
+  const updateChildTier = (hotelIdx: number, tierIdx: number, field: keyof ChildPriceTier, val: string | number) => {
+    setHotelOptions(prev => prev.map((h, i) => i === hotelIdx
+      ? { ...h, child_prices: h.child_prices.map((t, ti) => ti === tierIdx ? { ...t, [field]: val } : t) }
+      : h
+    ));
+  };
+
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!pkgTitle || !pkgDesc || !pkgImage || !pkgDuration) {
       addToast('Veuillez remplir les informations obligatoires.', 'error');
       return;
+    }
+
+    const parsedDepartureDates = pkgDepartureDates.split(',').map(x => x.trim()).filter(Boolean);
+    const validHotels = hotelOptions.filter(h => h.name.trim());
+
+    let computedPriceAdult = pkgPriceAdult;
+    let computedPriceChild = pkgPriceChild;
+    if (validHotels.length > 0) {
+      const cheapest = validHotels.reduce((a, b) => a.price_adult <= b.price_adult ? a : b);
+      computedPriceAdult = cheapest.price_adult;
+      computedPriceChild = cheapest.child_prices[0]?.price ?? pkgPriceChild;
     }
 
     const payload: Partial<Package> = {
@@ -274,23 +328,23 @@ export default function AdminPage() {
       image_url: pkgImage,
       destinations: pkgDestinations,
       duration: pkgDuration,
-      price_adult: pkgPriceAdult,
-      price_child: pkgPriceChild,
+      price_adult: computedPriceAdult,
+      price_child: computedPriceChild,
       included: pkgIncluded.split('\n').map(x => x.trim()).filter(Boolean),
       excluded: pkgExcluded.split('\n').map(x => x.trim()).filter(Boolean),
       accompaniment: pkgAccompaniment.trim(),
       itinerary: itineraryDays,
-      is_signature: pkgIsSignature
+      is_signature: pkgIsSignature,
+      departure_dates: parsedDepartureDates.length > 0 ? parsedDepartureDates : null,
+      hotels: validHotels.length > 0 ? validHotels : null,
     };
 
     if (pkgType === 'omra') {
       payload.season = pkgSeason;
       payload.hotel_proximity = pkgProximity.trim();
-      payload.departure_dates = pkgDepartureDates.split(',').map(x => x.trim()).filter(Boolean);
     } else {
       payload.season = null;
       payload.hotel_proximity = null;
-      payload.departure_dates = null;
     }
 
     try {
@@ -319,12 +373,48 @@ export default function AdminPage() {
   const statsPendingLeads = leads.filter(l => l.status === 'Nouveau' || l.status === 'En cours').length;
   const statsProcessedLeads = leads.filter(l => l.status === 'Traité').length;
 
+  // Fuzzy search
+  const fuzzyMatch = (text: string, query: string): boolean => {
+    if (!query.trim()) return true;
+    const q = query.toLowerCase().replace(/\s+/g, '');
+    const t = text.toLowerCase();
+    let qi = 0;
+    for (let i = 0; i < t.length && qi < q.length; i++) {
+      if (t[i] === q[qi]) qi++;
+    }
+    return qi === q.length;
+  };
+
+  const leadMatchesSearch = (lead: Lead): boolean => {
+    if (!leadSearchQuery.trim()) return true;
+    const fields = [
+      lead.name,
+      lead.email,
+      lead.phone,
+      lead.details?.package_title || '',
+      lead.details?.destinations || '',
+      lead.details?.city || '',
+      lead.details?.departure || '',
+      lead.details?.destination || '',
+      lead.details?.notes || '',
+    ];
+    return fields.some(f => fuzzyMatch(f, leadSearchQuery));
+  };
+
   // Filtered Leads
   const filteredLeads = leads.filter(l => {
     if (leadTypeFilter !== 'all' && l.type !== leadTypeFilter) return false;
     if (leadStatusFilter !== 'all' && l.status !== leadStatusFilter) return false;
+    if (!leadMatchesSearch(l)) return false;
     return true;
   });
+
+  const statusCounts = {
+    all: leads.filter(l => leadTypeFilter === 'all' || l.type === leadTypeFilter).length,
+    Nouveau: leads.filter(l => l.status === 'Nouveau' && (leadTypeFilter === 'all' || l.type === leadTypeFilter)).length,
+    'En cours': leads.filter(l => l.status === 'En cours' && (leadTypeFilter === 'all' || l.type === leadTypeFilter)).length,
+    Traité: leads.filter(l => l.status === 'Traité' && (leadTypeFilter === 'all' || l.type === leadTypeFilter)).length,
+  };
 
   return (
     <div className="flex-1 bg-slate-100 min-h-screen flex">
@@ -420,30 +510,73 @@ export default function AdminPage() {
                   })}
                 </div>
 
-                {/* Table Filters */}
-                <div className="flex gap-4">
-                  <select 
-                    value={leadTypeFilter}
-                    onChange={e => setLeadTypeFilter(e.target.value)}
-                    className="px-3.5 py-2 border border-slate-200 bg-white rounded-lg outline-none focus:border-blue-500 text-sm font-semibold text-slate-700 cursor-pointer"
-                  >
-                    <option value="all">Tous les services</option>
-                    <option value="billetterie">Billetterie Express</option>
-                    <option value="hotel">Hôtels</option>
-                    <option value="package">Séjours Organisés</option>
-                    <option value="sur_mesure">Sur-Mesure</option>
-                  </select>
+                {/* Search + Filters */}
+                <div className="space-y-3">
+                  {/* Search bar */}
+                  <div className="relative">
+                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                    <input
+                      type="text"
+                      value={leadSearchQuery}
+                      onChange={e => setLeadSearchQuery(e.target.value)}
+                      placeholder="Rechercher par nom, email, téléphone, destination..."
+                      className="w-full pl-10 pr-4 py-2.5 border border-slate-200 bg-white rounded-xl outline-none focus:border-blue-500 text-sm text-slate-700 placeholder-slate-400 shadow-sm"
+                    />
+                    {leadSearchQuery && (
+                      <button
+                        onClick={() => setLeadSearchQuery('')}
+                        className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
 
-                  <select 
-                    value={leadStatusFilter}
-                    onChange={e => setLeadStatusFilter(e.target.value)}
-                    className="px-3.5 py-2 border border-slate-200 bg-white rounded-lg outline-none focus:border-blue-500 text-sm font-semibold text-slate-700 cursor-pointer"
-                  >
-                    <option value="all">Tous les statuts</option>
-                    <option value="Nouveau">Nouveau</option>
-                    <option value="En cours">En cours</option>
-                    <option value="Traité">Traité</option>
-                  </select>
+                  {/* Service filter + Status tabs */}
+                  <div className="flex flex-wrap items-center gap-3">
+                    <select
+                      value={leadTypeFilter}
+                      onChange={e => setLeadTypeFilter(e.target.value)}
+                      className="px-3.5 py-2 border border-slate-200 bg-white rounded-lg outline-none focus:border-blue-500 text-sm font-semibold text-slate-700 cursor-pointer"
+                    >
+                      <option value="all">Tous les services</option>
+                      <option value="billetterie">Billetterie Express</option>
+                      <option value="hotel">Hôtels</option>
+                      <option value="package">Séjours Organisés</option>
+                      <option value="sur_mesure">Sur-Mesure</option>
+                    </select>
+
+                    <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
+                      {([
+                        { key: 'all', label: 'Tous' },
+                        { key: 'Nouveau', label: 'Nouveau' },
+                        { key: 'En cours', label: 'En cours' },
+                        { key: 'Traité', label: 'Traité' },
+                      ] as const).map(tab => (
+                        <button
+                          key={tab.key}
+                          onClick={() => setLeadStatusFilter(tab.key)}
+                          className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                            leadStatusFilter === tab.key
+                              ? 'bg-white text-slate-900 shadow-sm'
+                              : 'text-slate-500 hover:text-slate-700'
+                          }`}
+                        >
+                          {tab.label}
+                          <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-black ${
+                            leadStatusFilter === tab.key
+                              ? tab.key === 'Nouveau' ? 'bg-amber-100 text-amber-700'
+                                : tab.key === 'En cours' ? 'bg-blue-100 text-blue-700'
+                                : tab.key === 'Traité' ? 'bg-emerald-100 text-emerald-700'
+                                : 'bg-slate-100 text-slate-600'
+                              : 'bg-slate-200 text-slate-500'
+                          }`}>
+                            {statusCounts[tab.key]}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
 
                 {/* Table */}
@@ -503,8 +636,13 @@ export default function AdminPage() {
                                 detailsNode = (
                                   <>
                                     <div className="font-semibold text-slate-900">{det.package_title}</div>
+                                    {det.selected_hotel && (
+                                      <div className="text-xs text-slate-700 font-semibold">
+                                        Hôtel: {det.selected_hotel} {'★'.repeat(det.selected_hotel_stars || 0)}
+                                      </div>
+                                    )}
                                     <div className="text-xs text-slate-500">Passagers: {det.adults} Adulte(s), {det.children} Enfant(s)</div>
-                                    <div className="text-xs text-blue-600 font-bold">Total estimé: {det.total_price} DA (Départ: {det.preferred_date})</div>
+                                    <div className="text-xs text-blue-600 font-bold">Total estimé: {det.total_price?.toLocaleString('fr-DZ')} DA{det.selected_departure_date ? ` · Départ: ${det.selected_departure_date}` : det.preferred_date ? ` · Départ: ${det.preferred_date}` : ''}</div>
                                   </>
                                 );
                               } else if (lead.type === 'sur_mesure') {
@@ -785,17 +923,29 @@ export default function AdminPage() {
                   </div>
                 </div>
 
+                {/* Departure Dates (all package types) */}
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Prochains départs (séparés par virgule)</label>
+                  <input
+                    type="text"
+                    value={pkgDepartureDates}
+                    onChange={e => setPkgDepartureDates(e.target.value)}
+                    className="px-4 py-2.5 rounded-lg border border-slate-200 outline-none focus:border-blue-500"
+                    placeholder="YYYY-MM-DD, YYYY-MM-DD, ..."
+                  />
+                </div>
+
                 {/* Specific to Omra */}
                 {pkgType === 'omra' && (
                   <div className="p-5 bg-emerald-50/50 border border-emerald-100 rounded-xl space-y-4">
                     <h4 className="font-extrabold text-xs text-emerald-800 uppercase tracking-wider">Champs Spécifiques Omra / Hadj</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                       <div className="flex flex-col gap-1.5">
                         <label className="text-xs font-bold text-slate-500 uppercase">Saison</label>
-                        <select 
-                          value={pkgSeason} 
+                        <select
+                          value={pkgSeason}
                           onChange={e => setPkgSeason(e.target.value as any)}
-                          className="px-3.5 py-2 border border-slate-200 bg-white rounded-lg outline-none text-slate-700" 
+                          className="px-3.5 py-2 border border-slate-200 bg-white rounded-lg outline-none text-slate-700"
                         >
                           <option value="Ramadan">Ramadan</option>
                           <option value="Mawlid">Mawlid</option>
@@ -804,22 +954,12 @@ export default function AdminPage() {
                       </div>
                       <div className="flex flex-col gap-1.5">
                         <label className="text-xs font-bold text-slate-500 uppercase">Proximité Haram</label>
-                        <input 
-                          type="text" 
-                          value={pkgProximity} 
+                        <input
+                          type="text"
+                          value={pkgProximity}
                           onChange={e => setPkgProximity(e.target.value)}
-                          className="px-3.5 py-2 border border-slate-200 bg-white rounded-lg outline-none" 
+                          className="px-3.5 py-2 border border-slate-200 bg-white rounded-lg outline-none"
                           placeholder="Ex: 150m"
-                        />
-                      </div>
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-bold text-slate-500 uppercase">Prochains départs (séparés par virgule)</label>
-                        <input 
-                          type="text" 
-                          value={pkgDepartureDates} 
-                          onChange={e => setPkgDepartureDates(e.target.value)}
-                          className="px-3.5 py-2 border border-slate-200 bg-white rounded-lg outline-none" 
-                          placeholder="YYYY-MM-DD, YYYY-MM-DD"
                         />
                       </div>
                     </div>
@@ -911,7 +1051,7 @@ export default function AdminPage() {
                   <div className="space-y-4">
                     {itineraryDays.map((day, idx) => (
                       <div key={idx} className="p-5 bg-slate-50 border border-slate-200 rounded-xl relative space-y-3">
-                        <button 
+                        <button
                           type="button"
                           onClick={() => removeItineraryDay(idx)}
                           className="absolute top-4 right-4 text-rose-500 hover:text-rose-700 cursor-pointer"
@@ -921,7 +1061,7 @@ export default function AdminPage() {
                         </button>
                         <div className="font-bold text-blue-600 text-sm">Jour {day.day}</div>
                         <div className="grid grid-cols-1 gap-3">
-                          <input 
+                          <input
                             type="text"
                             value={day.title}
                             onChange={e => handleItineraryDayChange(idx, 'title', e.target.value)}
@@ -929,7 +1069,7 @@ export default function AdminPage() {
                             className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white"
                             required
                           />
-                          <textarea 
+                          <textarea
                             value={day.desc}
                             onChange={e => handleItineraryDayChange(idx, 'desc', e.target.value)}
                             placeholder="Détail des activités, repas, transferts..."
@@ -937,6 +1077,188 @@ export default function AdminPage() {
                             className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white"
                             required
                           />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Hotel Options Builder */}
+                <div className="pt-6 border-t border-slate-100 space-y-4">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <h3 className="font-heading font-bold text-lg text-slate-900">Options d'Hébergement</h3>
+                      <p className="text-xs text-slate-400 mt-0.5">Définissez plusieurs hôtels à différents prix. Le moins cher deviendra le prix de départ affiché.</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={addHotelOption}
+                      className="px-3.5 py-1.5 bg-slate-100 text-slate-700 hover:bg-blue-50 hover:text-blue-600 font-bold rounded-lg text-xs flex items-center gap-1.5 cursor-pointer transition-all border border-slate-200"
+                    >
+                      <PlusCircle className="w-4 h-4" /> Ajouter un Hôtel
+                    </button>
+                  </div>
+
+                  {hotelOptions.length === 0 && (
+                    <p className="text-sm text-slate-400 italic py-3 text-center border border-dashed border-slate-200 rounded-xl">
+                      Aucun hôtel — les prix saisis manuellement ci-dessus seront utilisés.
+                    </p>
+                  )}
+
+                  <div className="space-y-5">
+                    {hotelOptions.map((hotel, hIdx) => (
+                      <div key={hIdx} className="p-5 bg-slate-50 border border-slate-200 rounded-xl space-y-4 relative">
+                        <button
+                          type="button"
+                          onClick={() => removeHotelOption(hIdx)}
+                          className="absolute top-4 right-4 text-rose-500 hover:text-rose-700 cursor-pointer"
+                        >
+                          <MinusCircle className="w-5 h-5" />
+                        </button>
+                        <div className="font-bold text-blue-600 text-sm">Hôtel {hIdx + 1}</div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                          <div className="md:col-span-2 flex flex-col gap-1">
+                            <label className="text-[10px] font-bold text-slate-400 uppercase">Nom de l'hôtel</label>
+                            <input
+                              type="text"
+                              value={hotel.name}
+                              onChange={e => updateHotelOption(hIdx, 'name', e.target.value)}
+                              className="px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white"
+                              placeholder="EL MOURADI CLUB SELIMA"
+                            />
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            <label className="text-[10px] font-bold text-slate-400 uppercase">Étoiles</label>
+                            <select
+                              value={hotel.stars}
+                              onChange={e => updateHotelOption(hIdx, 'stars', parseInt(e.target.value))}
+                              className="px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white"
+                            >
+                              {[2, 3, 4, 5].map(s => <option key={s} value={s}>{s} ★</option>)}
+                            </select>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                          <div className="flex flex-col gap-1">
+                            <label className="text-[10px] font-bold text-slate-400 uppercase">Ville / Localisation</label>
+                            <input
+                              type="text"
+                              value={hotel.location}
+                              onChange={e => updateHotelOption(hIdx, 'location', e.target.value)}
+                              className="px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white"
+                              placeholder="SOUSSE"
+                            />
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            <label className="text-[10px] font-bold text-slate-400 uppercase">Formule</label>
+                            <input
+                              type="text"
+                              value={hotel.formula}
+                              onChange={e => updateHotelOption(hIdx, 'formula', e.target.value)}
+                              className="px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white"
+                              placeholder="All Inclusive"
+                            />
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            <label className="text-[10px] font-bold text-slate-400 uppercase">Prix Adulte (DA)</label>
+                            <input
+                              type="number"
+                              value={hotel.price_adult}
+                              onChange={e => updateHotelOption(hIdx, 'price_adult', parseFloat(e.target.value) || 0)}
+                              min={0}
+                              className="px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white"
+                            />
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            <label className="text-[10px] font-bold text-slate-400 uppercase">Âge max enfants</label>
+                            <input
+                              type="number"
+                              value={hotel.child_max_age ?? 12}
+                              onChange={e => updateHotelOption(hIdx, 'child_max_age', parseInt(e.target.value) || 12)}
+                              min={1}
+                              max={18}
+                              className="px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white"
+                              placeholder="12"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Child Price Tiers */}
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <label className="text-[10px] font-bold text-slate-400 uppercase">Tarifs Enfants</label>
+                            <button
+                              type="button"
+                              onClick={() => addChildTier(hIdx)}
+                              className="text-[10px] font-bold text-blue-600 hover:underline flex items-center gap-1 cursor-pointer"
+                            >
+                              <PlusCircle className="w-3 h-3" /> Ajouter tranche
+                            </button>
+                          </div>
+                          {hotel.child_prices.map((tier, tIdx) => (
+                            <div key={tIdx} className="flex items-center gap-2">
+                              <input
+                                type="text"
+                                value={tier.label}
+                                onChange={e => updateChildTier(hIdx, tIdx, 'label', e.target.value)}
+                                className="flex-1 px-3 py-1.5 border border-slate-200 rounded-lg text-xs bg-white"
+                                placeholder="Enfant (-12 ans)"
+                              />
+                              <input
+                                type="number"
+                                value={tier.price}
+                                onChange={e => updateChildTier(hIdx, tIdx, 'price', parseFloat(e.target.value) || 0)}
+                                min={0}
+                                className="w-28 px-3 py-1.5 border border-slate-200 rounded-lg text-xs bg-white"
+                                placeholder="Prix DA"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => removeChildTier(hIdx, tIdx)}
+                                className="text-rose-400 hover:text-rose-600 cursor-pointer shrink-0"
+                              >
+                                <MinusCircle className="w-4 h-4" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Amenities + URLs */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <div className="flex flex-col gap-1">
+                            <label className="text-[10px] font-bold text-slate-400 uppercase">Équipements (une par ligne)</label>
+                            <textarea
+                              value={hotel.amenities.join('\n')}
+                              onChange={e => updateHotelOption(hIdx, 'amenities', e.target.value.split('\n').map(x => x.trim()).filter(Boolean))}
+                              rows={3}
+                              className="px-3 py-2 border border-slate-200 rounded-lg text-xs bg-white"
+                              placeholder={"Accès plage\nToboggans\nPiscine chauffée"}
+                            />
+                          </div>
+                          <div className="flex flex-col gap-3">
+                            <div className="flex flex-col gap-1">
+                              <label className="text-[10px] font-bold text-slate-400 uppercase">URL Photo Hôtel</label>
+                              <input
+                                type="url"
+                                value={hotel.image_url || ''}
+                                onChange={e => updateHotelOption(hIdx, 'image_url', e.target.value)}
+                                className="px-3 py-2 border border-slate-200 rounded-lg text-xs bg-white"
+                                placeholder="https://..."
+                              />
+                            </div>
+                            <div className="flex flex-col gap-1">
+                              <label className="text-[10px] font-bold text-slate-400 uppercase">Lien Référence (Booking...)</label>
+                              <input
+                                type="url"
+                                value={hotel.reference_url || ''}
+                                onChange={e => updateHotelOption(hIdx, 'reference_url', e.target.value)}
+                                className="px-3 py-2 border border-slate-200 rounded-lg text-xs bg-white"
+                                placeholder="https://booking.com/..."
+                              />
+                            </div>
+                          </div>
                         </div>
                       </div>
                     ))}
