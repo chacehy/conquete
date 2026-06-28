@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Sliders, Globe, Menu, X } from 'lucide-react';
+import { Globe, Menu, X } from 'lucide-react';
 import { useLanguage } from '@/lib/LanguageContext';
 import BrandLogo from './BrandLogo';
 
@@ -66,18 +66,7 @@ export default function Header({ transparent = false }: HeaderProps) {
               <span>{language === 'fr' ? 'AR' : 'FR'}</span>
             </button>
 
-            <Link 
-              href="/admin" 
-              className={`hidden md:flex px-4 py-2 border rounded-lg text-sm font-semibold items-center gap-2 transition-all ${
-                transparent 
-                  ? 'border-white/20 text-white hover:border-white/50 hover:bg-white/5' 
-                  : 'border-slate-200 hover:border-blue-500 text-slate-800 hover:bg-slate-50'
-              }`}
-            >
-              <Sliders className="w-4 h-4 text-blue-400" /> {t('nav_agent')}
-            </Link>
-
-            <Link 
+            <Link
               href="/sur-mesure" 
               className="hidden sm:inline-flex px-4 sm:px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-semibold shadow-md shadow-blue-500/20 transition-all whitespace-nowrap shrink-0"
             >
@@ -136,13 +125,6 @@ export default function Header({ transparent = false }: HeaderProps) {
               className={`hover:text-blue-400 transition-colors py-3 border-b border-slate-800/60 ${pathname === '/sur-mesure' ? 'text-blue-400' : ''}`}
             >
               {t('nav_tailormade')}
-            </Link>
-            <Link 
-              href="/admin" 
-              onClick={() => setMobileMenuOpen(false)} 
-              className={`hover:text-blue-400 transition-colors py-3 border-b border-slate-800/60 flex items-center gap-2 ${pathname === '/admin' ? 'text-blue-400' : ''}`}
-            >
-              <Sliders className="w-5 h-5 text-blue-400" /> {t('nav_agent')}
             </Link>
           </nav>
 

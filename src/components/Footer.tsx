@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { MapPin, Mail, Phone, MessageCircle, Globe, Clock, Sliders } from 'lucide-react';
+import { MapPin, Mail, Phone, MessageCircle, Globe, Clock } from 'lucide-react';
 import { useLanguage } from '@/lib/LanguageContext';
 import BrandLogo from './BrandLogo';
 
@@ -76,9 +76,7 @@ export default function Footer() {
       </div>
       <div className="max-w-7xl mx-auto px-6 pt-8 border-t border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs font-semibold">
         <p>&copy; 2026 Conquête Voyages. {t('footer_rights')}</p>
-        <Link href="/admin" className="text-blue-500 hover:text-blue-400 font-bold flex items-center gap-1.5">
-          <Sliders className="w-3.5 h-3.5" /> {t('footer_agent_portal')}
-        </Link>
+        <span className="text-slate-600">{t('footer_rights')}</span>
       </div>
     </footer>
   );
