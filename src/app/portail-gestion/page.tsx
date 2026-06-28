@@ -57,7 +57,7 @@ export default function AdminPage() {
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
       if (!data?.user) {
-        router.replace('/admin/login');
+        router.replace('/portail-gestion/login');
         return;
       }
       if (data.user.email) setAdminEmail(data.user.email);
@@ -456,7 +456,7 @@ export default function AdminPage() {
           <button
             onClick={async () => {
               await supabase.auth.signOut();
-              router.push('/admin/login');
+              router.push('/portail-gestion/login');
             }}
             className="w-full flex items-center justify-center gap-2 px-4 py-2.5 border border-rose-800/50 hover:border-rose-500 hover:bg-rose-950/30 rounded-lg text-xs font-bold text-rose-400 transition-all cursor-pointer"
           >

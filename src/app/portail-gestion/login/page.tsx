@@ -37,7 +37,7 @@ export default function AdminLoginPage() {
       }
 
       // Success — redirect to admin dashboard
-      router.push('/admin');
+      router.push('/portail-gestion');
       router.refresh();
     } catch {
       setError('Erreur de connexion. Veuillez réessayer.');

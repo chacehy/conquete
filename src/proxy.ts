@@ -7,7 +7,7 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
   // Allow the login page through
-  if (pathname === '/admin/login') {
+  if (pathname === '/portail-gestion/login') {
     return NextResponse.next();
   }
 
@@ -46,7 +46,7 @@ export async function proxy(request: NextRequest) {
   if (!user) {
     // No valid session → redirect to login
     const loginUrl = request.nextUrl.clone();
-    loginUrl.pathname = '/admin/login';
+    loginUrl.pathname = '/portail-gestion/login';
     return NextResponse.redirect(loginUrl);
   }
 
@@ -54,5 +54,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*'],
+  matcher: ['/portail-gestion/:path*'],
 };
