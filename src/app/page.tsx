@@ -12,6 +12,7 @@ import { supabase } from '@/lib/supabase';
 import { Package } from '@/types';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import OccupancySelector, { Occupancy } from '@/components/OccupancySelector';
 
 export default function LandingPage() {
   // Database States
@@ -24,8 +25,7 @@ export default function LandingPage() {
   // Detail Drawer States
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState<Package | null>(null);
-  const [calcAdults, setCalcAdults] = useState(2);
-  const [calcChildren, setCalcChildren] = useState(0);
+  const [occupancy, setOccupancy] = useState<Occupancy>({ adults: 2, children: 0, babies: 0 });
   const [showDrawerBookingForm, setShowDrawerBookingForm] = useState(false);
 
   // Toast States
@@ -174,13 +174,14 @@ export default function LandingPage() {
       return;
     }
 
-    const price = (calcAdults * selectedPackage.price_adult) + (calcChildren * selectedPackage.price_child);
+    const price = (occupancy.adults * selectedPackage.price_adult) + (occupancy.children * selectedPackage.price_child);
 
     const details = {
       package_id: selectedPackage.id,
       package_title: selectedPackage.title,
-      adults: calcAdults,
-      children: calcChildren,
+      adults: occupancy.adults,
+      children: occupancy.children,
+      babies: occupancy.babies,
       total_price: price,
       preferred_date: bookDate
     };
@@ -197,15 +198,14 @@ export default function LandingPage() {
 
   const openPackageDetails = (pkg: Package) => {
     setSelectedPackage(pkg);
-    setCalcAdults(2);
-    setCalcChildren(0);
+    setOccupancy({ adults: 2, children: 0, babies: 0 });
     setShowDrawerBookingForm(false);
     setDrawerOpen(true);
   };
 
   const getCalcTotal = () => {
     if (!selectedPackage) return 0;
-    return (calcAdults * selectedPackage.price_adult) + (calcChildren * selectedPackage.price_child);
+    return (occupancy.adults * selectedPackage.price_adult) + (occupancy.children * selectedPackage.price_child);
   };
 
   // Teasers filters
@@ -761,28 +761,7 @@ export default function LandingPage() {
 
                 <div className="p-6 bg-blue-50/50 border border-blue-100 rounded-xl space-y-4">
                   <h4 className="font-bold text-slate-900 text-sm flex items-center gap-1.5"><Sliders className="w-4 h-4 text-blue-600" /> Calculateur Devis Estimatif</h4>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="flex flex-col gap-1">
-                      <label className="text-xs font-bold text-slate-500 uppercase">Adultes</label>
-                      <input 
-                        type="number" 
-                        value={calcAdults}
-                        onChange={e => setCalcAdults(Math.max(1, parseInt(e.target.value) || 1))}
-                        min={1}
-                        className="px-3 py-2 border border-slate-200 rounded-lg outline-none focus:border-blue-500 bg-white font-bold" 
-                      />
-                    </div>
-                    <div className="flex flex-col gap-1">
-                      <label className="text-xs font-bold text-slate-500 uppercase">Enfants</label>
-                      <input 
-                        type="number" 
-                        value={calcChildren}
-                        onChange={e => setCalcChildren(Math.max(0, parseInt(e.target.value) || 0))}
-                        min={0}
-                        className="px-3 py-2 border border-slate-200 rounded-lg outline-none focus:border-blue-500 bg-white font-bold" 
-                      />
-                    </div>
-                  </div>
+                  <OccupancySelector value={occupancy} onChange={setOccupancy} />
                   <div className="flex items-center justify-between pt-4 border-t border-blue-100 mt-2">
                     <div>
                       <span className="text-[10px] font-bold uppercase text-slate-400">Total Indicatif</span>

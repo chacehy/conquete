@@ -49,6 +49,7 @@ export interface Lead {
     package_title?: string;
     adults?: number;
     children?: number;
+    babies?: number;
     total_price?: number;
     preferred_date?: string;
     destinations?: string;

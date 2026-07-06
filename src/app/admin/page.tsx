@@ -130,9 +130,9 @@ export default function AdminPage() {
         case 'hotel':
           return `Hôtel à ${det.city || ''} | Chambre: ${det.room_type || ''} | Dates: Du ${det.date_checkin || ''} au ${det.date_checkout || ''}`;
         case 'package':
-          return `Séjour: ${det.package_title || ''} | Passagers: ${det.adults || 0} Adulte(s), ${det.children || 0} Enfant(s) | Tarif total: ${det.total_price || 0}€ | Départ: ${det.preferred_date || ''}`;
+          return `Séjour: ${det.package_title || ''} | Passagers: ${det.adults || 0} Adulte(s), ${det.children || 0} Enfant(s), ${det.babies || 0} Bébé(s) | Tarif total: ${det.total_price || 0}€ | Départ: ${det.preferred_date || ''}`;
         case 'sur_mesure':
-          return `Sur-mesure: ${det.destinations || ''} (${det.duration || ''}) | Passagers: ${det.passengers || ''} | Profil: ${det.profile || ''} | Budget: ${det.budget || ''} | Notes: ${det.notes || ''}`;
+          return `Sur-mesure: ${det.destinations || ''} (${det.duration || ''}) | Passagers: ${det.adults || 0} Adulte(s), ${det.children || 0} Enfant(s), ${det.babies || 0} Bébé(s) | Profil: ${det.profile || ''} | Budget: ${det.budget || ''} | Notes: ${det.notes || ''}`;
         default:
           return JSON.stringify(lead.details);
       }
@@ -478,7 +478,7 @@ export default function AdminPage() {
                                 detailsNode = (
                                   <>
                                     <div className="font-semibold text-slate-900">{det.package_title}</div>
-                                    <div className="text-xs text-slate-500">Passagers: {det.adults} Adulte(s), {det.children} Enfant(s)</div>
+                                    <div className="text-xs text-slate-500">Passagers: {det.adults} Adulte(s), {det.children} Enfant(s){det.babies ? `, ${det.babies} Bébé(s)` : ''}</div>
                                     <div className="text-xs text-blue-600 font-bold">Total estimé: {det.total_price} € (Départ: {det.preferred_date})</div>
                                   </>
                                 );
@@ -486,7 +486,7 @@ export default function AdminPage() {
                                 detailsNode = (
                                   <>
                                     <div className="font-semibold text-slate-900">{det.destinations} ({det.duration})</div>
-                                    <div className="text-xs text-slate-500">Passagers: {det.passengers} pers. | Profil: {det.profile} | Budget: {det.budget}</div>
+                                    <div className="text-xs text-slate-500">Passagers: {det.adults} Adulte(s), {det.children} Enfant(s){det.babies ? `, ${det.babies} Bébé(s)` : ''} | Profil: {det.profile} | Budget: {det.budget}</div>
                                     <div className="text-[11px] text-slate-400 mt-1 italic leading-tight">Notes: {det.notes}</div>
                                   </>
                                 );

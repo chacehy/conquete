@@ -8,6 +8,7 @@ import {
 import { supabase } from '@/lib/supabase';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import OccupancySelector, { Occupancy } from '@/components/OccupancySelector';
 
 export default function SurMesurePage() {
   const [step, setStep] = useState(1);
@@ -16,7 +17,7 @@ export default function SurMesurePage() {
   const [smDest, setSmDest] = useState('');
   const [smDuration, setSmDuration] = useState('10-12 days');
   const [smProfile, setSmProfile] = useState('couple');
-  const [smPassengers, setSmPassengers] = useState(2);
+  const [smOccupancy, setSmOccupancy] = useState<Occupancy>({ adults: 2, children: 0, babies: 0 });
   const [smBudget, setSmBudget] = useState('Confort');
   const [smNotes, setSmNotes] = useState('');
   const [smName, setSmName] = useState('');
@@ -39,10 +40,6 @@ export default function SurMesurePage() {
       addToast('Veuillez renseigner votre destination.', 'error');
       return;
     }
-    if (step === 2 && (!smPassengers || smPassengers < 1)) {
-      addToast('Le nombre de voyageurs doit être supérieur à 0.', 'error');
-      return;
-    }
     setStep(prev => prev + 1);
   };
 
@@ -57,7 +54,10 @@ export default function SurMesurePage() {
       destinations: smDest,
       duration: smDuration,
       profile: smProfile,
-      passengers: smPassengers,
+      adults: smOccupancy.adults,
+      children: smOccupancy.children,
+      babies: smOccupancy.babies,
+      passengers: smOccupancy.adults + smOccupancy.children,
       budget: smBudget,
       notes: smNotes
     };
@@ -76,6 +76,7 @@ export default function SurMesurePage() {
       // Reset
       setStep(1);
       setSmDest('');
+      setSmOccupancy({ adults: 2, children: 0, babies: 0 });
       setSmNotes('');
       setSmName('');
       setSmEmail('');
@@ -199,13 +200,7 @@ export default function SurMesurePage() {
                     </div>
                     <div className="flex flex-col gap-2">
                       <label className="text-sm font-bold text-slate-700">Nombre de participants</label>
-                      <input 
-                        type="number" 
-                        value={smPassengers}
-                        onChange={e => setSmPassengers(parseInt(e.target.value) || 1)}
-                        min={1}
-                        className="px-4 py-3 rounded-lg border border-slate-200 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 bg-white font-bold"
-                      />
+                      <OccupancySelector value={smOccupancy} onChange={setSmOccupancy} />
                     </div>
                   </motion.div>
                 )}
