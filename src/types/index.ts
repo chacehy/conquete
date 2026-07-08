@@ -1,6 +1,7 @@
 export interface ChildPriceTier {
   label: string;
   price: number;
+  is_baby?: boolean;
 }
 
 export interface HotelOption {

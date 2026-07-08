@@ -299,7 +299,7 @@ export default function AdminPage() {
     ));
   };
 
-  const updateChildTier = (hotelIdx: number, tierIdx: number, field: keyof ChildPriceTier, val: string | number) => {
+  const updateChildTier = (hotelIdx: number, tierIdx: number, field: keyof ChildPriceTier, val: string | number | boolean) => {
     setHotelOptions(prev => prev.map((h, i) => i === hotelIdx
       ? { ...h, child_prices: h.child_prices.map((t, ti) => ti === tierIdx ? { ...t, [field]: val } : t) }
       : h
@@ -1217,6 +1217,15 @@ export default function AdminPage() {
                                 className="w-28 px-3 py-1.5 border border-slate-200 rounded-lg text-xs bg-white"
                                 placeholder="Prix DA"
                               />
+                              <label className="flex items-center gap-1 text-[10px] font-bold text-slate-500 shrink-0 cursor-pointer" title="Ne compte pas dans le quota d'occupation de la chambre">
+                                <input
+                                  type="checkbox"
+                                  checked={!!tier.is_baby}
+                                  onChange={e => updateChildTier(hIdx, tIdx, 'is_baby', e.target.checked)}
+                                  className="cursor-pointer"
+                                />
+                                Bébé
+                              </label>
                               <button
                                 type="button"
                                 onClick={() => removeChildTier(hIdx, tIdx)}

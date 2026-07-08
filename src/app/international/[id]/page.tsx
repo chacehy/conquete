@@ -78,6 +78,14 @@ export default function PackageDetailPage() {
 
   const selectedHotel: HotelOption | null = pkg?.hotels?.[selectedHotelIdx] ?? null;
 
+  // Room occupancy rule: max 2 adults + 2 enfants, or 3 adults + 1 enfant. Bébés don't count.
+  const countOccupantChildren = (sels: number[]) => {
+    const tiers = selectedHotel?.child_prices ?? [];
+    return sels.filter(idx => !tiers[Math.min(idx, tiers.length - 1)]?.is_baby).length;
+  };
+  const fitsOccupancy = (adultsCount: number, occupantChildren: number) =>
+    adultsCount <= 3 && (adultsCount <= 2 ? occupantChildren <= 2 : occupantChildren <= 1);
+
   const getChildPriceBreakdown = (): { label: string; price: number }[] => {
     if (!selectedHotel || children === 0) return [];
     const tiers = selectedHotel.child_prices;
@@ -602,7 +610,14 @@ export default function PackageDetailPage() {
                     subLabel={`${(selectedHotel?.price_adult ?? pkg.price_adult).toLocaleString('fr-DZ')} DA / pers`}
                     value={adults}
                     onDecrement={() => setAdults(a => Math.max(1, a - 1))}
-                    onIncrement={() => setAdults(a => a + 1)}
+                    onIncrement={() => {
+                      const next = adults + 1;
+                      if (!fitsOccupancy(next, countOccupantChildren(childTierSelections))) {
+                        addToast('Occupation maximale par chambre : 2 adultes + 2 enfants, ou 3 adultes + 1 enfant (bébés non comptés).', 'error');
+                        return;
+                      }
+                      setAdults(next);
+                    }}
                   />
                   <CounterRow
                     label={selectedHotel?.child_max_age
@@ -620,8 +635,13 @@ export default function PackageDetailPage() {
                       setChildTierSelections(prev => prev.slice(0, -1));
                     }}
                     onIncrement={() => {
+                      const nextSels = [...childTierSelections, 0];
+                      if (!fitsOccupancy(adults, countOccupantChildren(nextSels))) {
+                        addToast('Occupation maximale par chambre : 2 adultes + 2 enfants, ou 3 adultes + 1 enfant (bébés non comptés).', 'error');
+                        return;
+                      }
                       setChildren(c => c + 1);
-                      setChildTierSelections(prev => [...prev, 0]);
+                      setChildTierSelections(nextSels);
                     }}
                   />
 
@@ -649,6 +669,10 @@ export default function PackageDetailPage() {
                               onChange={e => {
                                 const newSels = [...childTierSelections];
                                 newSels[i] = parseInt(e.target.value);
+                                if (!fitsOccupancy(adults, countOccupantChildren(newSels))) {
+                                  addToast('Occupation maximale par chambre : 2 adultes + 2 enfants, ou 3 adultes + 1 enfant (bébés non comptés).', 'error');
+                                  return;
+                                }
                                 setChildTierSelections(newSels);
                               }}
                               className="flex-1 px-2 py-1 border border-slate-200 rounded-lg bg-white text-slate-700 text-[11px] cursor-pointer outline-none focus:border-blue-400"
